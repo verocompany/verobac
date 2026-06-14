@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدعم الفني - VERO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/client.css">
+    <style>
+        .ticket-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
+        .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .ticket-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .status-open { background: #fee2e2; color: #dc2626; }
+        .status-in-progress { background: #fef3c7; color: #d97706; }
+        .status-resolved { background: #d1fae5; color: #059669; }
+        .new-ticket-btn { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><img src="/verologo.png" alt="VERO"><h3>VERO</h3></div>
+    <nav>
+        <div class="nav-item" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> الرئيسية</div>
+        <div class="nav-item" data-page="editor"><i class="fas fa-edit"></i> تحرير الموقع</div>
+        <div class="nav-item" data-page="products"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item" data-page="orders"><i class="fas fa-truck"></i> الطلبات</div>
+        <div class="nav-item" data-page="media"><i class="fas fa-folder-open"></i> مكتبة الوسائط</div>
+        <div class="nav-item" data-page="blog"><i class="fas fa-blog"></i> المدونة</div>
+        <div class="nav-item" data-page="billing"><i class="fas fa-credit-card"></i> الفواتير</div>
+        <div class="nav-item" data-page="analytics"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="nav-item active" data-page="tickets"><i class="fas fa-headset"></i> الدعم</div>
+        <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('open')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; display: none;">☰</button>
+        <h1 class="page-title">الدعم الفني</h1>
+        <div class="user-avatar" id="userAvatar">أ</div>
+    </div>
+
+    <button class="btn-primary new-ticket-btn" onclick="openNewTicketModal()"><i class="fas fa-plus"></i> تذكرة جديدة</button>
+
+    <div class="card">
+        <h3><i class="fas fa-ticket-alt"></i> تذاكري</h3>
+        <div id="ticketsList"></div>
+    </div>
+</div>
+
+<!-- New Ticket Modal -->
+<div id="ticketModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 1000;">
+    <div class="modal-content" style="background: white; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%;">
+        <h3>📝 تذكرة دعم جديدة</h3>
+        <input type="text" id="ticketTitle" placeholder="عنوان التذكرة" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border); border-radius: 8px;">
+        <textarea id="ticketMessage" rows="5" placeholder="اشرح مشكلتك بالتفصيل..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border); border-radius: 8px;"></textarea>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+            <button class="btn-outline" onclick="closeModal('ticketModal')">إلغاء</button>
+            <button class="btn-primary" onclick="createTicket()">إرسال</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:3001/api';
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = '/login.html';
+    document.getElementById('userAvatar').innerText = (user.displayName || 'م')[0];
+    
+    let tickets = [];
+    
+    function navigateTo(page) { window.location.href = `/client/${page}.html`; }
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+        item.addEventListener('click', () => navigateTo(item.dataset.page));
+    });
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+    
+    async function loadTickets() {
+        try {
+            const response = await fetch(`${API_URL}/client/tickets`, {
+                headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+            const data = await response.json();
+            tickets = data.success ? (data.tickets || []) : [];
+        } catch(e) { tickets = []; }
+        renderTickets();
+    }
+    
+    function renderTickets() {
+        const container = document.getElementById('ticketsList');
+        if (!tickets.length) {
+            container.innerHTML = '<div style="text-align: center; padding: 40px;">لا توجد تذاكر. أضف تذكرة جديدة</div>';
+            return;
+        }
+        container.innerHTML = tickets.map(t => `
+            <div class="ticket-card">
+                <div class="ticket-header">
+                    <div><strong>${t.title}</strong><br><small>${new Date(t.date).toLocaleDateString('ar')}</small></div>
+                    <div><span class="ticket-status status-${t.status === 'open' ? 'open' : (t.status === 'in-progress' ? 'in-progress' : 'resolved')}">${t.status === 'open' ? 'مفتوحة' : (t.status === 'in-progress' ? 'قيد المعالجة' : 'تم الحل')}</span></div>
+                </div>
+                <div class="ticket-message">${t.message}</div>
+                <div class="ticket-actions" style="margin-top: 12px;">
+                    <button class="btn-outline" onclick="viewTicket('${t.id}')">عرض التفاصيل</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function openNewTicketModal() {
+        document.getElementById('ticketTitle').value = '';
+        document.getElementById('ticketMessage').value = '';
+        document.getElementById('ticketModal').style.display = 'flex';
+    }
+    
+    async function createTicket() {
+        const title = document.getElementById('ticketTitle').value;
+        const message = document.getElementById('ticketMessage').value;
+        if (!title || !message) { alert('الرجاء إدخال عنوان ورسالة'); return; }
+        
+        const response = await fetch(`${API_URL}/client/tickets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            body: JSON.stringify({ title, message })
+        });
+        const data = await response.json();
+        if (data.success) {
+            closeModal('ticketModal');
+            loadTickets();
+            alert('✅ تم إرسال التذكرة');
+        } else alert('❌ فشل الإرسال');
+    }
+    
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function viewTicket(id) { alert(`تفاصيل التذكرة ${id}`); }
+    
+    loadTickets();
+    if (window.innerWidth <= 768) document.querySelector('.toggle-sidebar').style.display = 'block';
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة الوسائط | VERO</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="client.css">
+    <style>
+        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .media-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: all 0.3s; }
+        .media-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .media-preview { height: 140px; background: var(--cream); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .media-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .media-preview i { font-size: 48px; color: var(--primary); }
+        .media-info { padding: 12px; }
+        .media-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        .media-size { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+        .media-actions { display: flex; gap: 8px; }
+        .upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 24px; background: var(--cream); }
+        .upload-area:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
+        .upload-area i { font-size: 48px; color: var(--primary); margin-bottom: 16px; }
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+        .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 12px; display: none; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.3s; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><img src="../verologo.png" alt="VERO"><h3>VERO</h3></div>
+    <nav>
+        <div class="nav-item" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> الرئيسية</div>
+        <div class="nav-item" data-page="products"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات</div>
+        <div class="nav-item active" data-page="media"><i class="fas fa-folder-open"></i> مكتبة الوسائط</div>
+        <div class="nav-item" data-page="blog"><i class="fas fa-blog"></i> المدونة</div>
+        <div class="nav-item" data-page="tickets"><i class="fas fa-headset"></i> الدعم</div>
+        <div class="nav-item" data-page="billing"><i class="fas fa-credit-card"></i> الفواتير</div>
+        <div class="nav-item" data-page="analytics"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 class="page-title">مكتبة الوسائط</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">م</div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+    </div>
+
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>اضغط لرفع الصور والملفات</p>
+        <p class="upload-hint" style="font-size: 12px;">يدعم: PNG, JPG, JPEG, GIF, MP4, PDF (حد أقصى 10MB)</p>
+    </div>
+    <input type="file" id="fileInput" multiple accept="image/*,video/*,application/pdf" style="display: none;" onchange="uploadFiles(this.files)">
+
+    <div class="filter-bar">
+        <select id="typeFilter" class="filter-select" onchange="filterMedia()">
+            <option value="all">جميع الملفات</option>
+            <option value="image">الصور</option>
+            <option value="video">الفيديو</option>
+            <option value="application">المستندات</option>
+        </select>
+        <div class="search-box"><input type="text" id="searchInput" placeholder="بحث..." onkeyup="filterMedia()"><button onclick="filterMedia()"><i class="fas fa-search"></i></button></div>
+        <button class="btn-primary" onclick="refreshMedia()"><i class="fas fa-sync-alt"></i> تحديث</button>
+    </div>
+
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <div id="mediaContainer" class="loading">جاري التحميل...</div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let allMedia = [];
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = '../login.html';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email?.charAt(0) || 'م')[0];
+
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers: { ...(token && { 'Authorization': `Bearer ${token}` }), ...options.headers, ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }) }
+            });
+            if (response.status === 401) { localStorage.clear(); window.location.href = '../login.html'; return null; }
+            return await response.json();
+        } catch(error) { return { success: false, error: error.message }; }
+    }
+
+    function showToast(message) { const toast = document.createElement('div'); toast.className = 'toast'; toast.innerHTML = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+
+    async function loadMedia() {
+        const result = await apiCall('/client/media');
+        if (result?.success && result.files) allMedia = result.files;
+        else allMedia = [];
+        renderMedia();
+    }
+
+    function renderMedia() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        let filtered = allMedia;
+        if (typeFilter !== 'all') filtered = filtered.filter(m => m.mimeType?.startsWith(typeFilter));
+        if (searchTerm) filtered = filtered.filter(m => m.name?.toLowerCase().includes(searchTerm));
+        
+        const container = document.getElementById('mediaContainer');
+        if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>لا توجد ملفات</p><button class="btn-primary" onclick="document.getElementById(\'fileInput\').click()">رفع أول ملف</button></div>'; return; }
+        
+        container.innerHTML = '<div class="media-grid">';
+        filtered.forEach(media => {
+            const isImage = media.mimeType?.startsWith('image/');
+            container.innerHTML += `<div class="media-card"><div class="media-preview">${isImage ? `<img src="${escapeHtml(media.url)}" alt="${escapeHtml(media.name)}">` : `<i class="fas ${media.mimeType === 'application/pdf' ? 'fa-file-pdf' : 'fa-file'}"></i>`}</div><div class="media-info"><div class="media-name" title="${escapeHtml(media.name)}">${escapeHtml(media.name.substring(0, 30))}${media.name.length > 30 ? '...' : ''}</div><div class="media-size">${formatBytes(media.size)}</div><div class="media-actions"><button class="btn-outline" onclick="copyUrl('${escapeHtml(media.url)}')"><i class="fas fa-copy"></i> نسخ</button><button class="btn-danger" onclick="deleteMedia('${media.id}')"><i class="fas fa-trash"></i></button></div></div></div>`;
+        });
+        container.innerHTML += '</div>';
+    }
+
+    function filterMedia() { renderMedia(); }
+    function refreshMedia() { loadMedia(); showToast('🔄 تم تحديث المكتبة'); }
+
+    async function uploadFiles(files) {
+        if (!files || !files.length) return;
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        progressBar.style.display = 'block';
+        for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            formData.append('file', files[i]);
+            progressFill.style.width = `${((i + 1) / files.length) * 100}%`;
+            try { await apiCall('/client/media/upload', { method: 'POST', body: formData }); }
+            catch(e) { console.error('Upload error:', e); }
+        }
+        setTimeout(() => { progressBar.style.display = 'none'; progressFill.style.width = '0%'; }, 1000);
+        loadMedia();
+        showToast(`✅ تم رفع ${files.length} ملف بنجاح`);
+        document.getElementById('fileInput').value = '';
+    }
+
+    async function deleteMedia(id) { if (confirm('هل أنت متأكد من حذف هذا الملف؟')) { await apiCall(`/client/media/${id}`, { method: 'DELETE' }); loadMedia(); showToast('✅ تم حذف الملف'); } }
+    function copyUrl(url) { navigator.clipboard.writeText(url); showToast('✅ تم نسخ الرابط'); }
+    function formatBytes(bytes) { if (bytes === 0) return '0 Bytes'; const k = 1024; const sizes = ['Bytes', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
+    function logout() { localStorage.clear(); window.location.href = '../login.html'; }
+    function showPage(page) { window.location.href = `${page}.html`; }
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => { item.addEventListener('click', () => showPage(item.dataset.page)); });
+    
+    loadMedia();
+    if (window.innerWidth <= 768) document.querySelector('.toggle-sidebar').style.display = 'block';
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الباقات والأسعار | VERO</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #e7c27a;
+            --primary-dark: #d4a95c;
+            --secondary: #69451a;
+            --bg: #fffaf6;
+            --bg-dark: #f5ebe0;
+            --panel: #ffffff;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 24px;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(255,250,246,0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .logo-img { height: 50px; width: auto; }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); transition: color 0.2s; font-size: 14px; }
+        .nav-links a:hover { color: var(--primary); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        .page-header { text-align: center; margin-bottom: 48px; }
+        .page-header h1 { font-size: 2.5rem; margin-bottom: 12px; }
+        .page-header h1 span { color: var(--primary); }
+        .page-header p { color: var(--text-muted); }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-bottom: 60px;
+        }
+        .pricing-card {
+            background: var(--panel);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            position: relative;
+        }
+        .pricing-card:hover { transform: translateY(-8px); box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1); }
+        .pricing-card.popular { border: 2px solid var(--primary); }
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            right: 50%;
+            transform: translateX(50%);
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .card-icon { width: 70px; height: 70px; background: var(--bg-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .card-icon i { font-size: 32px; color: var(--primary); }
+        .price { font-size: 2rem; font-weight: 800; color: var(--primary); margin: 16px 0; }
+        .price small { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
+        .feature-list { text-align: right; margin: 24px 0; list-style: none; }
+        .feature-list li { padding: 8px 0; display: flex; align-items: center; gap: 8px; }
+        .feature-list i { color: var(--success); width: 20px; }
+        .btn { width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--secondary); }
+        .footer { padding: 40px 5% 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 13px; }
+        @media (max-width: 768px) {
+            .pricing-grid { grid-template-columns: 1fr; }
+            .page-header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html"><img src="verologo.png" alt="VERO" class="logo-img"></a>
+    <div class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="plans.html">الباقات</a>
+        <a href="order.html">طلب بناء</a>
+        <a href="login.html" class="btn-primary">دخول العملاء</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <h1>اختر <span>الباقة المناسبة</span> لموقعك</h1>
+        <p>نحن نبني موقعك بدقة احترافية، ونستضيفه ونديره لك</p>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- Essential -->
+        <div class="pricing-card">
+            <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>Essential</h3>
+            <div class="price">300 <small>درهم/شهر</small></div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check"></i> استضافة VERO</li>
+                <li><i class="fas fa-check"></i> حماية أساسية</li>
+                <li><i class="fas fa-check"></i> دومين: client.vero.com</li>
+                <li><i class="fas fa-check"></i> دعم فني 24/7</li>
+            </ul>
+            <a href="order.html?hosting=essential" class="btn btn-outline">اختر الباقة</a>
+        </div>
+
+        <!-- Business (Popular) -->
+        <div class="pricing-card popular">
+            <div class="popular-badge"><i class="fas fa-star"></i> الأكثر طلباً</div>
+            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Business</h3>
+            <div class="price">500 <small>درهم/شهر</small></div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check"></i> كل ميزات Essential</li>
+                <li><i class="fas fa-check"></i> دومين خاص (custom domain)</li>
+                <li><i class="fas fa-check"></i> لوحة تحكم متقدمة</li>
+                <li><i class="fas fa-check"></i> تقارير وتحليلات</li>
+            </ul>
+            <a href="order.html?hosting=business" class="btn btn-primary">اختر الباقة</a>
+        </div>
+
+        <!-- Premium -->
+        <div class="pricing-card">
+            <div class="card-icon"><i class="fas fa-gem"></i></div>
+            <h3>Premium</h3>
+            <div class="price">700 <small>درهم/شهر</small></div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check"></i> كل ميزات Business</li>
+                <li><i class="fas fa-check"></i> SSL متقدم</li>
+                <li><i class="fas fa-check"></i> مساعد ذكي (AI)</li>
+                <li><i class="fas fa-check"></i> دعم 24/7 فوري</li>
+            </ul>
+            <a href="order.html?hosting=premium" class="btn btn-outline">اختر الباقة</a>
+        </div>
+    </div>
+
+    <!-- Build Fees Section -->
+    <div style="background: var(--bg-dark); border-radius: 24px; padding: 32px; margin-top: 20px;">
+        <h3 style="text-align: center; margin-bottom: 24px;">💰 رسوم بناء الموقع (دفعة واحدة)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="text-align: center;"><strong>موقع أساسي</strong><br>1,000 - 1,500 درهم</div>
+            <div style="text-align: center;"><strong>موقع شركات</strong><br>2,000 - 2,500 درهم</div>
+            <div style="text-align: center;"><strong>متجر إلكتروني</strong><br>2,500 - 3,000 درهم</div>
+            <div style="text-align: center;"><strong>نظام مخصص</strong><br>4,000 - 5,000+ درهم</div>
+        </div>
+        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">* الأسعار تشمل التصميم والتطوير والتسليم خلال 7-21 يوم</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="order.html" class="btn-primary" style="padding: 14px 32px; display: inline-block;">اطلب بناء موقعك الآن</a>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>© 2026 VERO. جميع الحقوق محفوظة</p>
+</footer>
+
+<script>
+    // Highlight selected hosting plan from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedPlan = urlParams.get('plan');
+    if (selectedPlan) {
+        document.querySelectorAll('.btn').forEach(btn => {
+            if (btn.href.includes(selectedPlan)) {
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'var(--secondary)';
+            }
+        });
+    }
+</script>
+</body>
+</html>

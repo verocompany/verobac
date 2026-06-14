@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Chat - VERO Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0A0E1A;
+            --panel: #111827;
+            --card: #1A2233;
+            --card-border: #1E2D42;
+            --cyan: #00D4FF;
+            --purple: #7C3AED;
+            --green: #10B981;
+            --amber: #F59E0B;
+            --red: #EF4444;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #4A5568;
+            --topbar-h: 48px;
+            --sidebar-w: 220px;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--sans); background: var(--bg); color: var(--text-primary); font-size: 13px; overflow: hidden; direction: rtl; }
+        
+        .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--panel); border-bottom: 1px solid var(--card-border); display: flex; align-items: center; padding: 0 16px; z-index: 100; gap: 16px; }
+        .topbar-brand { display: flex; align-items: center; gap: 10px; min-width: var(--sidebar-w); }
+        .brand-name { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-primary); }
+        .brand-env { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 0.1em; color: var(--cyan); background: rgba(0,212,255,0.1); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(0,212,255,0.2); }
+        .topbar-status { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .status-pill { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; color: var(--text-secondary); padding: 3px 8px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); }
+        .status-pill.online { color: var(--green); border-color: rgba(16,185,129,0.2); }
+        .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .user-chip { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; font-family: var(--mono); }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+        .user-role { font-size: 10px; color: var(--text-secondary); }
+
+        .sidebar { position: fixed; top: var(--topbar-h); right: 0; width: var(--sidebar-w); height: calc(100vh - var(--topbar-h)); background: var(--panel); border-left: 1px solid var(--card-border); overflow-y: auto; z-index: 90; }
+        .sidebar-nav { padding: 12px 0; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 16px; cursor: pointer; color: var(--text-secondary); transition: all 0.15s; border-right: 2px solid transparent; font-size: 12px; }
+        .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); border-right-color: rgba(255,255,255,0.1); }
+        .nav-item.active { color: var(--cyan); background: rgba(0,212,255,0.06); border-right-color: var(--cyan); }
+        .nav-label { font-size: 12px; }
+        .nav-divider { height: 1px; background: var(--card-border); margin: 8px 16px; }
+
+        .chat-layout { display: flex; height: calc(100vh - var(--topbar-h) - 48px); margin: -24px; }
+        .chat-sidebar { width: 260px; background: var(--panel); border-left: 1px solid var(--card-border); display: flex; flex-direction: column; }
+        .chat-search { padding: 16px; border-bottom: 1px solid var(--card-border); }
+        .chat-search input { width: 100%; padding: 8px 12px; background: var(--card); border: 1px solid var(--card-border); border-radius: 6px; color: var(--text-primary); }
+        .channels-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .channel-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s; color: var(--text-secondary); }
+        .channel-item:hover { background: rgba(255,255,255,0.03); }
+        .channel-item.active { background: rgba(0,212,255,0.08); color: var(--cyan); }
+        .channel-icon { width: 28px; text-align: center; }
+        .dm-list { border-top: 1px solid var(--card-border); padding: 8px; }
+        .dm-label { padding: 8px 12px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        .dm-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+        .dm-item:hover { background: rgba(255,255,255,0.03); }
+        .dm-status { width: 8px; height: 8px; border-radius: 50%; margin-right: auto; }
+        .dm-status.online { background: var(--green); }
+
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+        .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .message { display: flex; gap: 12px; max-width: 75%; }
+        .message.own { align-self: flex-start; flex-direction: row; }
+        .message-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+        .message-bubble { background: var(--card); padding: 8px 14px; border-radius: 16px; }
+        .message.own .message-bubble { background: var(--cyan); color: #000; }
+        .message-sender { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+        .message-text { font-size: 13px; line-height: 1.4; }
+        .message-time { font-size: 9px; color: var(--text-muted); margin-top: 4px; }
+
+        .chat-input-area { padding: 16px 20px; border-top: 1px solid var(--card-border); display: flex; gap: 12px; }
+        .chat-input { flex: 1; padding: 10px 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: 24px; color: var(--text-primary); }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; border: none; }
+        .btn-primary { background: var(--cyan); color: #000; }
+
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 16px; background: var(--card); border: 1px solid var(--cyan); border-radius: 8px; color: var(--cyan); z-index: 1000; animation: slideIn 0.2s ease; }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2A3A50; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-brand">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#00D4FF"/>
+            <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+            <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+            <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#00D4FF" opacity="0.5"/>
+        </svg>
+        <span class="brand-name">VERO Studio</span>
+        <span class="brand-env">PRODUCTION</span>
+    </div>
+    <div class="topbar-status">
+        <div class="status-pill online"><span class="dot"></span>Chat</div>
+        <div class="status-pill online"><span class="dot"></span>WebSocket</div>
+    </div>
+    <div class="topbar-right">
+        <div class="user-chip" onclick="logout()">
+            <div class="user-avatar" id="userAvatar">SA</div>
+            <div class="user-info">
+                <span class="user-name" id="userName">Super Admin</span>
+                <span class="user-role" id="userRole">super_admin</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar">
+    <nav class="sidebar-nav">
+        <a class="nav-item" onclick="navigate('dashboard')"><i class="fas fa-tachometer-alt"></i><span class="nav-label">Dashboard</span></a>
+        <a class="nav-item" onclick="navigate('projects')"><i class="fas fa-folder-open"></i><span class="nav-label">Projects</span></a>
+        <a class="nav-item" onclick="navigate('clients')"><i class="fas fa-users"></i><span class="nav-label">Clients</span></a>
+        <a class="nav-item" onclick="navigate('templates')"><i class="fas fa-palette"></i><span class="nav-label">Templates</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="navigate('deploy')"><i class="fas fa-rocket"></i><span class="nav-label">Deploy</span></a>
+        <a class="nav-item" onclick="navigate('domains')"><i class="fas fa-globe"></i><span class="nav-label">Domains</span></a>
+        <a class="nav-item" onclick="navigate('cloudflare')"><i class="fas fa-cloud"></i><span class="nav-label">Cloudflare</span></a>
+        <a class="nav-item" onclick="navigate('r2')"><i class="fas fa-database"></i><span class="nav-label">R2 Storage</span></a>
+        <a class="nav-item" onclick="navigate('media')"><i class="fas fa-images"></i><span class="nav-label">Media Library</span></a>
+        <a class="nav-item" onclick="navigate('backups')"><i class="fas fa-history"></i><span class="nav-label">Backups</span></a>
+        <a class="nav-item" onclick="navigate('team')"><i class="fas fa-users-cog"></i><span class="nav-label">Team</span></a>
+        <a class="nav-item active" onclick="navigate('chat')"><i class="fas fa-comments"></i><span class="nav-label">Chat</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="navigate('settings')"><i class="fas fa-cog"></i><span class="nav-label">Settings</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span class="nav-label">Logout</span></a>
+    </nav>
+</div>
+
+<div class="main" style="padding: 0;">
+    <div class="chat-layout">
+        <div class="chat-sidebar">
+            <div class="chat-search">
+                <input type="text" placeholder="Search channels..." id="channelSearch">
+            </div>
+            <div class="channels-list" id="channelsList"></div>
+            <div class="dm-list">
+                <div class="dm-label">DIRECT MESSAGES</div>
+                <div id="dmList"></div>
+            </div>
+        </div>
+        <div class="chat-main">
+            <div class="chat-header" id="chatHeader">
+                <span><i class="fas fa-hashtag"></i> <strong id="currentChannel">general</strong></span>
+                <span id="memberCount">3 members</span>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button class="btn btn-primary" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentChannel = 'general';
+    let messages = {
+        general: [
+            { id: 1, sender: 'Super Admin', senderId: 'admin', text: 'Welcome to #general! 🎉', time: new Date(Date.now() - 3600000), own: false },
+            { id: 2, sender: 'J. Malik', senderId: 'jm', text: 'Morning everyone!', time: new Date(Date.now() - 1800000), own: false },
+            { id: 3, sender: 'You', senderId: 'current', text: 'Good morning! Ready for deployment today?', time: new Date(Date.now() - 900000), own: true }
+        ],
+        deployments: [
+            { id: 1, sender: 'S. Chen', senderId: 'sc', text: 'techventure-co.com is ready for deployment', time: new Date(Date.now() - 7200000), own: false },
+            { id: 2, sender: 'Super Admin', senderId: 'admin', text: 'Approved. Deploy at 2pm', time: new Date(Date.now() - 3600000), own: false }
+        ],
+        design: [
+            { id: 1, sender: 'A. Torres', senderId: 'at', text: 'New mockups uploaded for client review', time: new Date(Date.now() - 86400000), own: false }
+        ]
+    };
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = 'login.html';
+    
+    document.getElementById('userName').innerText = user.displayName || user.email || 'Admin';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email || 'A')[0].toUpperCase();
+    document.getElementById('userRole').innerText = user.role === 'super_admin' ? 'Super Admin' : user.role;
+    
+    function navigate(page) { window.location.href = `${page}.html`; }
+    function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; }
+    
+    function renderChannels() {
+        const channels = ['general', 'deployments', 'design'];
+        const container = document.getElementById('channelsList');
+        container.innerHTML = channels.map(ch => `
+            <div class="channel-item ${currentChannel === ch ? 'active' : ''}" onclick="switchChannel('${ch}')">
+                <div class="channel-icon"><i class="fas fa-hashtag"></i></div>
+                <div>${ch}</div>
+            </div>
+        `).join('');
+    }
+    
+    function renderDMs() {
+        const members = [
+            { name: 'Super Admin', id: 'admin', online: true },
+            { name: 'J. Malik', id: 'jm', online: true },
+            { name: 'S. Chen', id: 'sc', online: true },
+            { name: 'A. Torres', id: 'at', online: false }
+        ];
+        const container = document.getElementById('dmList');
+        container.innerHTML = members.map(m => `
+            <div class="dm-item" onclick="switchToDM('${m.id}')">
+                <div class="dm-avatar" style="width: 28px; height: 28px; background: linear-gradient(135deg, var(--cyan), var(--purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">${m.name[0]}</div>
+                <div>${m.name}</div>
+                <div class="dm-status ${m.online ? 'online' : ''}"></div>
+            </div>
+        `).join('');
+    }
+    
+    function switchChannel(channel) {
+        currentChannel = channel;
+        document.getElementById('currentChannel').innerText = channel;
+        renderChannels();
+        renderMessages();
+    }
+    
+    function switchToDM(userId) {
+        currentChannel = `dm_${userId}`;
+        document.getElementById('currentChannel').innerText = `DM with ${userId}`;
+        renderMessages();
+    }
+    
+    function renderMessages() {
+        const msgs = messages[currentChannel] || [];
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = msgs.map(m => `
+            <div class="message ${m.own ? 'own' : ''}">
+                <div class="message-avatar" style="${m.own ? 'background: var(--cyan); color: #000;' : ''}">${m.sender[0]}</div>
+                <div class="message-bubble">
+                    <div class="message-sender">${m.sender}</div>
+                    <div class="message-text">${escapeHtml(m.text)}</div>
+                    <div class="message-time">${formatTime(m.time)}</div>
+                </div>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text) return;
+        
+        const newMsg = {
+            id: Date.now(),
+            sender: user.displayName || 'You',
+            senderId: 'current',
+            text: text,
+            time: new Date(),
+            own: true
+        };
+        
+        if (!messages[currentChannel]) messages[currentChannel] = [];
+        messages[currentChannel].push(newMsg);
+        renderMessages();
+        input.value = '';
+        
+        setTimeout(() => {
+            const reply = {
+                id: Date.now() + 1,
+                sender: 'System',
+                senderId: 'system',
+                text: 'Message received! 👍',
+                time: new Date(),
+                own: false
+            };
+            messages[currentChannel].push(reply);
+            renderMessages();
+        }, 1000);
+    }
+    
+    function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+    
+    function formatTime(date) {
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
+    }
+    
+    renderChannels();
+    renderDMs();
+    renderMessages();
+</script>
+</body>
+</html>

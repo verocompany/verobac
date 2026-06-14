@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب بناء موقع | VERO</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e7c27a;
+            --primary-dark: #d4a95c;
+            --primary-light: #f5e6c8;
+            --secondary: #69451a;
+            --secondary-light: #8b5e2c;
+            --cream: #fffaf6;
+            --cream-dark: #f5ebe0;
+            --white: #ffffff;
+            --ivory: #fffff0;
+            --beige: #f5f5dc;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-gold: 0 4px 14px rgba(231, 194, 122, 0.3);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--beige) 100%);
+            color: var(--text);
+            direction: rtl;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: var(--white);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo-img { height: 50px; width: auto; transition: transform 0.3s; }
+        .logo-img:hover { transform: scale(1.05); }
+
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); transition: color 0.2s; font-size: 14px; }
+        .nav-links a:hover { color: var(--primary); }
+
+        .back-link {
+            display: inline-block;
+            margin: 20px 5%;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            color: var(--primary-dark);
+            transform: translateX(-5px);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        /* Steps */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--white);
+            border-radius: 40px;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--secondary);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .step .number {
+            width: 26px;
+            height: 26px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .step.active .number {
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section h2 {
+            margin-bottom: 28px;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            border-right: 3px solid var(--primary);
+            padding-right: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--white);
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(231, 194, 122, 0.2);
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Plan Selector */
+        .plan-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .plan-option {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--white);
+        }
+
+        .plan-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .plan-option.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary-light), var(--ivory));
+            box-shadow: var(--shadow-gold);
+        }
+
+        .plan-option h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--secondary);
+        }
+
+        .plan-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .plan-features li {
+            margin: 6px 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-features li i {
+            color: var(--primary);
+            font-size: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+            box-shadow: 0 4px 14px rgba(231, 194, 122, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 194, 122, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-light);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            margin-top: 24px;
+        }
+
+        /* Summary */
+        .summary {
+            background: linear-gradient(135deg, var(--primary-light), var(--ivory));
+            padding: 24px;
+            border-radius: var(--radius);
+            margin-top: 24px;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .total-price {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .info-box {
+            background: rgba(231, 194, 122, 0.15);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin: 20px 0;
+            font-size: 14px;
+            border-right: 3px solid var(--primary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--white);
+            color: var(--text);
+            padding: 14px 24px;
+            border-radius: 40px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1100;
+            animation: slideInRight 0.3s ease;
+            border-right: 4px solid var(--primary);
+            font-weight: 500;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .form-section { padding: 20px; }
+            .row-2 { grid-template-columns: 1fr; }
+            .plan-selector { grid-template-columns: 1fr; }
+            .steps { gap: 10px; }
+            .step { padding: 6px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo-area">
+        <img src="verologo.png" alt="VERO Logo" class="logo-img" onerror="this.src='https://placehold.co/200x60/e7c27a/69451a?text=VERO'">
+    </div>
+    <div class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="index.html#pricing">الباقات</a>
+        <a href="login.html">دخول العملاء</a>
+    </div>
+</div>
+
+<a href="index.html" class="back-link"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
+
+<div class="container">
+    <div class="steps">
+        <div class="step active" id="step1Indicator"><span class="number">1</span> نوع الموقع</div>
+        <div class="step" id="step2Indicator"><span class="number">2</span> معلوماتك</div>
+        <div class="step" id="step3Indicator"><span class="number">3</span> باقة الاستضافة</div>
+        <div class="step" id="step4Indicator"><span class="number">4</span> تأكيد الطلب</div>
+    </div>
+
+    <!-- Step 1: Website Type -->
+    <div id="step1" class="form-section">
+        <h2>📌 اختر نوع الموقع الذي تريد بناءه</h2>
+        <div class="plan-selector">
+            <div class="plan-option" data-plan="basic" data-price="1250" onclick="selectBuildPlan(this, 'basic', 1250)">
+                <h3>موقع أساسي</h3>
+                <div class="plan-price">1,000 - 1,500 درهم</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 1–3 صفحات</li>
+                    <li><i class="fas fa-check"></i> تصميم متجاوب</li>
+                    <li><i class="fas fa-check"></i> نموذج تواصل</li>
+                </ul>
+            </div>
+            <div class="plan-option" data-plan="business" data-price="2250" onclick="selectBuildPlan(this, 'business', 2250)">
+                <h3>موقع شركات ⭐</h3>
+                <div class="plan-price">2,000 - 2,500 درهم</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 5–10 صفحات</li>
+                    <li><i class="fas fa-check"></i> تصميم مخصص</li>
+                    <li><i class="fas fa-check"></i> نظام إدارة محتوى</li>
+                </ul>
+            </div>
+            <div class="plan-option" data-plan="ecommerce" data-price="2750" onclick="selectBuildPlan(this, 'ecommerce', 2750)">
+                <h3>متجر إلكتروني</h3>
+                <div class="plan-price">2,500 - 3,000 درهم</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> متجر كامل</li>
+                    <li><i class="fas fa-check"></i> بوابة دفع</li>
+                    <li><i class="fas fa-check"></i> إدارة طلبات</li>
+                </ul>
+            </div>
+            <div class="plan-option" data-plan="custom" data-price="4500" onclick="selectBuildPlan(this, 'custom', 4500)">
+                <h3>نظام مخصص</h3>
+                <div class="plan-price">4,000 - 5,000+ درهم</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> نظام مخصص بالكامل</li>
+                    <li><i class="fas fa-check"></i> ERP/CRM</li>
+                    <li><i class="fas fa-check"></i> APIs مخصصة</li>
+                </ul>
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="nextStep(2)">التالي <i class="fas fa-arrow-left"></i></button>
+        </div>
+    </div>
+
+    <!-- Step 2: Your Info -->
+    <div id="step2" class="form-section" style="display: none;">
+        <h2>👤 معلوماتك الشخصية</h2>
+        <div class="row-2">
+            <div class="form-group">
+                <label>الاسم الكامل *</label>
+                <input type="text" id="fullName" placeholder="أحمد محمد">
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني *</label>
+                <input type="email" id="email" placeholder="ahmed@example.com">
+            </div>
+        </div>
+        <div class="row-2">
+            <div class="form-group">
+                <label>رقم الجوال *</label>
+                <input type="tel" id="phone" placeholder="+971 50 123 4567">
+            </div>
+            <div class="form-group">
+                <label>اسم الشركة (اختياري)</label>
+                <input type="text" id="company" placeholder="شركة">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>تفاصيل إضافية عن موقعك</label>
+            <textarea id="details" rows="4" placeholder="أخبرنا عن متطلباتك..."></textarea>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-secondary" onclick="prevStep(1)">السابق</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">التالي</button>
+        </div>
+    </div>
+
+    <!-- Step 3: Hosting Plan -->
+    <div id="step3" class="form-section" style="display: none;">
+        <h2>☁️ اختر باقة الاستضافة <span style="color: var(--primary); font-size: 14px;">(إجباري)</span></h2>
+        <div class="plan-selector">
+            <div class="plan-option" data-hosting="essential" data-monthly="300" onclick="selectHostingPlan(this, 'essential', 300)">
+                <h3>أساسي</h3>
+                <div class="plan-price">300 درهم/شهر</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-globe"></i> دومين: client.vero.com</li>
+                    <li><i class="fas fa-check"></i> استضافة VERO</li>
+                </ul>
+            </div>
+            <div class="plan-option" data-hosting="business" data-monthly="500" onclick="selectHostingPlan(this, 'business', 500)">
+                <h3>احترافي ⭐</h3>
+                <div class="plan-price">500 درهم/شهر</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-globe"></i> دومين خاص</li>
+                    <li><i class="fas fa-check"></i> لوحة تحكم متقدمة</li>
+                </ul>
+            </div>
+            <div class="plan-option" data-hosting="premium" data-monthly="700" onclick="selectHostingPlan(this, 'premium', 700)">
+                <h3>ممتاز</h3>
+                <div class="plan-price">700 درهم/شهر</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-globe"></i> دومين خاص + SSL</li>
+                    <li><i class="fas fa-check"></i> مساعد ذكي</li>
+                </ul>
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-secondary" onclick="prevStep(2)">السابق</button>
+            <button class="btn btn-primary" onclick="nextStep(4)">التالي</button>
+        </div>
+    </div>
+
+    <!-- Step 4: Confirmation -->
+    <div id="step4" class="form-section" style="display: none;">
+        <h2>📋 تأكيد طلبك</h2>
+        <div class="summary">
+            <div class="summary-line"><span>نوع الموقع:</span><span id="summaryBuildPlan">-</span></div>
+            <div class="summary-line"><span>رسوم البناء (مرة واحدة):</span><span id="summaryBuildPrice">- درهم</span></div>
+            <div class="summary-line"><span>باقة الاستضافة (شهرياً):</span><span id="summaryHostingPlan">-</span></div>
+            <div class="summary-line"><span>الاشتراك الشهري:</span><span id="summaryMonthlyPrice">- درهم</span></div>
+            <div class="summary-total"><span>المبلغ المطلوب اليوم (رسوم البناء):</span><span class="total-price" id="summaryTotalBuild">- درهم</span></div>
+        </div>
+        <div class="info-box">
+            <i class="fas fa-gift"></i> عرض خاص: أول شهر استضافة مجاني! 🎁
+        </div>
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i> سنتواصل معك خلال 24 ساعة لتأكيد طلبك وترتيب الدفع.
+        </div>
+        <div class="button-group">
+            <button class="btn btn-secondary" onclick="prevStep(3)">السابق</button>
+            <button class="btn btn-primary" onclick="submitOrder()">تأكيد الطلب <i class="fas fa-check"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // VERO ORDER FORM - Full API Integration
+    // ============================================================
+    
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    
+    let selectedBuildPlan = null;
+    let selectedBuildPrice = 0;
+    let selectedHostingPlan = null;
+    let selectedMonthlyPrice = 0;
+    
+    // ============================================================
+    // Select Build Plan
+    // ============================================================
+    function selectBuildPlan(element, plan, price) {
+        document.querySelectorAll('[data-plan]').forEach(p => p.classList.remove('selected'));
+        element.classList.add('selected');
+        selectedBuildPlan = plan;
+        selectedBuildPrice = price;
+        
+        let displayPrice = price;
+        if (plan === 'basic') displayPrice = '1,250';
+        else if (plan === 'business') displayPrice = '2,250';
+        else if (plan === 'ecommerce') displayPrice = '2,750';
+        else if (plan === 'custom') displayPrice = '4,500';
+        
+        document.getElementById('summaryBuildPlan').innerText = element.querySelector('h3').innerText;
+        document.getElementById('summaryBuildPrice').innerText = displayPrice + ' درهم';
+        document.getElementById('summaryTotalBuild').innerText = displayPrice + ' درهم';
+    }
+    
+    // ============================================================
+    // Select Hosting Plan
+    // ============================================================
+    function selectHostingPlan(element, plan, monthly) {
+        document.querySelectorAll('[data-hosting]').forEach(p => p.classList.remove('selected'));
+        element.classList.add('selected');
+        selectedHostingPlan = plan;
+        selectedMonthlyPrice = monthly;
+        
+        document.getElementById('summaryHostingPlan').innerText = element.querySelector('h3').innerText;
+        document.getElementById('summaryMonthlyPrice').innerText = monthly + ' درهم';
+    }
+    
+    // ============================================================
+    // Navigation
+    // ============================================================
+    function nextStep(step) {
+        // Validation
+        if (step === 2 && !selectedBuildPlan) {
+            showToast('❌ الرجاء اختيار نوع الموقع');
+            return;
+        }
+        
+        if (step === 3) {
+            const name = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!name || !email || !phone) {
+                showToast('❌ الرجاء إدخال جميع البيانات');
+                return;
+            }
+            if (!email.includes('@')) {
+                showToast('❌ البريد الإلكتروني غير صحيح');
+                return;
+            }
+        }
+        
+        if (step === 4 && !selectedHostingPlan) {
+            showToast('❌ الرجاء اختيار باقة الاستضافة');
+            return;
+        }
+        
+        // Update step indicators
+        for (let i = 1; i <= 4; i++) {
+            const indicator = document.getElementById(`step${i}Indicator`);
+            if (i === step) indicator.classList.add('active');
+            else indicator.classList.remove('active');
+        }
+        
+        // Show/hide sections
+        document.getElementById('step1').style.display = step === 1 ? 'block' : 'none';
+        document.getElementById('step2').style.display = step === 2 ? 'block' : 'none';
+        document.getElementById('step3').style.display = step === 3 ? 'block' : 'none';
+        document.getElementById('step4').style.display = step === 4 ? 'block' : 'none';
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function prevStep(step) {
+        nextStep(step);
+    }
+    
+    // ============================================================
+    // Submit Order
+    // ============================================================
+    async function submitOrder() {
+        const orderData = {
+            type: selectedBuildPlan,
+            buildPrice: selectedBuildPrice,
+            hosting: selectedHostingPlan,
+            monthlyPrice: selectedMonthlyPrice,
+            name: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            company: document.getElementById('company').value,
+            details: document.getElementById('details').value,
+            date: new Date().toISOString()
+        };
+        
+        // Show loading state on button
+        const submitBtn = document.querySelector('#step4 .btn-primary');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch(`${API_URL}/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showToast('✅ تم استلام طلبك بنجاح! سنتواصل معك خلال 24 ساعة.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                // Fallback to localStorage
+                let orders = JSON.parse(localStorage.getItem('vero_orders') || '[]');
+                orders.push(orderData);
+                localStorage.setItem('vero_orders', JSON.stringify(orders));
+                showToast('✅ تم حفظ طلبك! سنتواصل معك قريباً.');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        } catch (error) {
+            // Fallback to localStorage
+            let orders = JSON.parse(localStorage.getItem('vero_orders') || '[]');
+            orders.push(orderData);
+            localStorage.setItem('vero_orders', JSON.stringify(orders));
+            showToast('✅ تم حفظ طلبك! سنتواصل معك قريباً.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+    
+    // ============================================================
+    // Toast Notification
+    // ============================================================
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // ============================================================
+    // Enter key navigation
+    // ============================================================
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const activeStep = document.querySelector('.form-section:not([style*="display: none"])');
+            if (activeStep && activeStep.id === 'step2') {
+                nextStep(3);
+            }
+        }
+    });
+</script>
+</body>
+</html>

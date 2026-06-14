@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تفاصيل الموقع - VERO Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .website-detail-header {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .website-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .website-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .website-icon i {
+            font-size: 32px;
+            color: var(--white);
+        }
+        
+        .website-title h2 {
+            margin-bottom: 4px;
+        }
+        
+        .website-url {
+            color: var(--gold);
+        }
+        
+        .detail-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--gray-light);
+            padding-bottom: 12px;
+        }
+        
+        .detail-tab {
+            padding: 10px 24px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .detail-tab.active {
+            background: var(--gold);
+            color: var(--black);
+        }
+        
+        .detail-panel {
+            display: none;
+        }
+        
+        .detail-panel.active {
+            display: block;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .info-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+        
+        .deployment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .domain-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--cream);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="page-content">
+    <div id="websiteHeader"></div>
+    
+    <div class="detail-tabs">
+        <button class="detail-tab active" onclick="showPanel('overview')">نظرة عامة</button>
+        <button class="detail-tab" onclick="showPanel('deployments')">عمليات النشر</button>
+        <button class="detail-tab" onclick="showPanel('domains')">الدومينات</button>
+        <button class="detail-tab" onclick="showPanel('ssl')">SSL</button>
+        <button class="detail-tab" onclick="showPanel('storage')">التخزين</button>
+        <button class="detail-tab" onclick="showPanel('activity')">النشاطات</button>
+    </div>
+    
+    <div id="overviewPanel" class="detail-panel active">
+        <div class="info-grid" id="overviewGrid"></div>
+        <div class="card">
+            <h4><i class="fas fa-chart-line"></i> إحصائيات الزوار</h4>
+            <div id="visitorChart" style="height: 200px; background: var(--cream); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-chart-line" style="font-size: 48px; color: var(--gold-light);"></i>
+                <span style="margin-right: 16px;">جاري تحميل الإحصائيات...</span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="deploymentsPanel" class="detail-panel">
+        <div class="card" id="deploymentsList"></div>
+    </div>
+    
+    <div id="domainsPanel" class="detail-panel">
+        <div class="card" id="domainsList"></div>
+        <button class="btn-primary" onclick="addDomain()"><i class="fas fa-plus"></i> إضافة دومين</button>
+    </div>
+    
+    <div id="sslPanel" class="detail-panel">
+        <div class="card" id="sslInfo"></div>
+    </div>
+    
+    <div id="storagePanel" class="detail-panel">
+        <div class="card" id="storageInfo"></div>
+    </div>
+    
+    <div id="activityPanel" class="detail-panel">
+        <div class="card" id="activityList"></div>
+    </div>
+</div>
+
+<script>
+    const websiteId = new URLSearchParams(window.location.search).get('id') || 'website_1';
+    
+    const websiteData = {
+        id: websiteId,
+        name: 'متجر أحمد',
+        domain: 'ahmedstore.com',
+        status: 'active',
+        sslStatus: 'active',
+        createdAt: '2024-12-01',
+        publishedAt: '2024-12-15',
+        plan: 'business',
+        storageUsed: '156 MB',
+        visits: 12450,
+        pages: 8
+    };
+    
+    const deployments = [
+        { id: 1, version: 'v1.0.0', date: '2024-12-15 10:30', status: 'success', message: 'إطلاق الموقع' },
+        { id: 2, version: 'v1.0.1', date: '2024-12-20 14:15', status: 'success', message: 'تحديث المنتجات' },
+        { id: 3, version: 'v1.1.0', date: '2024-12-25 09:00', status: 'failed', message: 'فشل النشر - خطأ في CSS' },
+    ];
+    
+    const domains = [
+        { name: 'ahmedstore.com', status: 'active', ssl: true },
+        { name: 'shop.ahmedstore.com', status: 'active', ssl: true },
+        { name: 'old-ahmedstore.com', status: 'redirect', ssl: false },
+    ];
+    
+    function loadWebsiteHeader() {
+        document.getElementById('websiteHeader').innerHTML = `
+            <div class="website-detail-header">
+                <div class="website-info">
+                    <div class="website-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="website-title">
+                        <h2>${websiteData.name}</h2>
+                        <div class="website-url">
+                            <a href="https://${websiteData.domain}" target="_blank">${websiteData.domain}</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge-${websiteData.status === 'active' ? 'success' : 'danger'}" style="padding: 6px 16px;">
+                        ${websiteData.status === 'active' ? '🟢 نشط' : '🔴 موقوف'}
+                    </span>
+                    <button class="btn-primary" onclick="openBuilder()">
+                        <i class="fas fa-code"></i> فتح المحرر
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    function showPanel(panel) {
+        document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`${panel}Panel`).classList.add('active');
+        document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+    
+    function loadOverview() {
+        const grid = document.getElementById('overviewGrid');
+        grid.innerHTML = `
+            <div class="info-card">
+                <i class="fas fa-calendar" style="color: var(--gold);"></i>
+                <div style="font-size: 24px; font-weight: 800;">${websiteData.createdAt}</div>
+                <div>تاريخ الإنشاء</div>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-rocket" style="color: var(--gold);"></i>
+                <div style="font-size: 24px; font-weight: 800;">${websiteData.publishedAt}</div>
+                <div>تاريخ النشر</div>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-chart-line" style="color: var(--gold);"></i>
+                <div style="font-size: 24px; font-weight: 800;">${websiteData.visits.toLocaleString()}</div>
+                <div>زيارة هذا الشهر</div>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-database" style="color: var(--gold);"></i>
+                <div style="font-size: 24px; font-weight: 800;">${websiteData.storageUsed}</div>
+                <div>مساحة التخزين</div>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-file-alt" style="color: var(--gold);"></i>
+                <div style="font-size: 24px; font-weight: 800;">${websiteData.pages}</div>
+                <div>الصفحات</div>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-tag" style="color: var(--gold);"></i>
+                <div style="font-size: 24px; font-weight: 800;">${websiteData.plan === 'business' ? 'Business' : 'Essential'}</div>
+                <div>الباقة</div>
+            </div>
+        `;
+        
+        document.getElementById('visitorChart').innerHTML = `
+            <div style="text-align: center;">
+                <i class="fas fa-chart-line" style="font-size: 48px; color: var(--gold);"></i>
+                <div style="margin-top: 16px;">
+                    <div>📊 12,450 زيارة هذا الشهر</div>
+                    <div>👥 3,240 زائر فريد</div>
+                    <div>⏱️ 2:45 متوسط مدة الجلسة</div>
+                    <div>📄 5.2 صفحة لكل جلسة</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function loadDeployments() {
+        const container = document.getElementById('deploymentsList');
+        container.innerHTML = deployments.map(d => `
+            <div class="deployment-item">
+                <div>
+                    <strong>${d.version}</strong>
+                    <br><small>${d.date}</small>
+                </div>
+                <div>
+                    <span class="badge-${d.status === 'success' ? 'success' : 'danger'}">${d.status === 'success' ? '✓ نجاح' : '✗ فشل'}</span>
+                </div>
+                <div>${d.message}</div>
+                <button class="btn-secondary" onclick="rollbackDeployment('${d.id}')">
+                    <i class="fas fa-undo"></i> استرجاع
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    function loadDomains() {
+        const container = document.getElementById('domainsList');
+        container.innerHTML = domains.map(d => `
+            <div class="domain-item">
+                <div>
+                    <strong>${d.name}</strong>
+                    <br><small>${d.ssl ? '🔒 SSL مفعل' : '⚠️ SSL غير مفعل'}</small>
+                </div>
+                <div>
+                    <span class="badge-${d.status === 'active' ? 'success' : 'warning'}">${d.status}</span>
+                    <button class="btn-icon-danger" onclick="deleteDomain('${d.name}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function loadSSLInfo() {
+        document.getElementById('sslInfo').innerHTML = `
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <i class="fas fa-shield-alt" style="font-size: 48px; color: var(--success);"></i>
+                <div>
+                    <h4>✅ SSL/TLS مفعل</h4>
+                    <p>الشهادة سارية حتى 2025-12-01</p>
+                    <p>النوع: Universal SSL</p>
+                </div>
+                <button class="btn-primary" onclick="renewSSL()">تجديد SSL</button>
+            </div>
+        `;
+    }
+    
+    function loadStorageInfo() {
+        document.getElementById('storageInfo').innerHTML = `
+            <div>
+                <div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>مساحة التخزين المستخدمة</span>
+                        <span>156 MB / 5 GB</span>
+                    </div>
+                    <div class="progress-bar" style="margin-top: 8px;">
+                        <div class="progress-fill" style="width: 3%;"></div>
+                    </div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <i class="fas fa-image"></i>
+                        <div><strong>234</strong> ملف</div>
+                        <small>الصور والفيديو</small>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-file-code"></i>
+                        <div><strong>8</strong> ملف</div>
+                        <small>HTML/CSS/JS</small>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-file-alt"></i>
+                        <div><strong>12</strong> ملف</div>
+                        <small>مستندات</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function loadActivity() {
+        const activities = [
+            { action: 'تعديل HTML', user: 'أحمد', time: 'منذ ساعة' },
+            { action: 'رفع صور', user: 'سارة', time: 'منذ 3 ساعات' },
+            { action: 'نشر تحديث', user: 'مطور', time: 'منذ يوم' },
+        ];
+        
+        document.getElementById('activityList').innerHTML = activities.map(a => `
+            <div class="deployment-item">
+                <div><i class="fas fa-edit"></i> ${a.action}</div>
+                <div>بواسطة ${a.user}</div>
+                <div>${a.time}</div>
+            </div>
+        `).join('');
+    }
+    
+    function openBuilder() {
+        alert('فتح المحرر للموقع');
+    }
+    
+    function addDomain() {
+        const domain = prompt('أدخل اسم الدومين الجديد:');
+        if (domain) showToast(`✅ تم إضافة الدومين: ${domain}`);
+    }
+    
+    function deleteDomain(domain) {
+        if (confirm(`هل أنت متأكد من حذف ${domain}؟`)) {
+            showToast(`🗑️ تم حذف ${domain}`);
+        }
+    }
+    
+    function rollbackDeployment(id) {
+        if (confirm('هل أنت متأكد من استرجاع هذا الإصدار؟')) {
+            showToast('🔄 جاري استرجاع الإصدار...');
+        }
+    }
+    
+    function renewSSL() {
+        showToast('🔄 جاري تجديد SSL...');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    loadWebsiteHeader();
+    loadOverview();
+    loadDeployments();
+    loadDomains();
+    loadSSLInfo();
+    loadStorageInfo();
+    loadActivity();
+</script>
+</body>
+</html>

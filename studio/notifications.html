@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>الإشعارات - VERO Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .notifications-stats {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .notifications-stats span {
+            background: var(--white);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .notification-item {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 16px;
+            transition: all 0.3s;
+            border-right: 3px solid transparent;
+            cursor: pointer;
+        }
+        
+        .notification-item:hover {
+            transform: translateX(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .notification-item.unread {
+            background: linear-gradient(135deg, var(--white), var(--gold-light));
+            border-right-color: var(--gold);
+        }
+        
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--cream);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .notification-icon i {
+            font-size: 20px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .notification-message {
+            font-size: 13px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        
+        .notification-time {
+            font-size: 11px;
+            color: var(--gray);
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .mark-read-btn {
+            background: none;
+            border: none;
+            color: var(--gold);
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 20px;
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn.active {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+        
+        .mark-all-btn {
+            background: none;
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            padding: 8px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="page-content">
+    <div class="notifications-header">
+        <h3><i class="fas fa-bell"></i> مركز الإشعارات</h3>
+        <div class="notifications-stats">
+            <span id="unreadCount">0 غير مقروء</span>
+            <button class="mark-all-btn" onclick="markAllAsRead()">
+                <i class="fas fa-check-double"></i> تعليم الكل كمقروء
+            </button>
+        </div>
+    </div>
+    
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="filterNotifications('all')">الجميع</button>
+        <button class="filter-btn" onclick="filterNotifications('unread')">غير مقروء</button>
+        <button class="filter-btn" onclick="filterNotifications('read')">مقروء</button>
+    </div>
+    
+    <div id="notificationsList"></div>
+</div>
+
+<script>
+    let notifications = [];
+    let currentFilter = 'all';
+    
+    const demoNotifications = [
+        { id: 1, title: '🚀 نشر موقع جديد', message: 'تم نشر موقع "متجر أحمد" بنجاح', type: 'success', read: false, time: new Date(Date.now() - 1000 * 60 * 5).toISOString(), icon: 'fa-rocket', color: 'var(--success)' },
+        { id: 2, title: '⚠️ انتهاء اشتراك', message: 'اشتراك عميل "سارة" سينتهي خلال 3 أيام', type: 'warning', read: false, time: new Date(Date.now() - 1000 * 60 * 30).toISOString(), icon: 'fa-exclamation-triangle', color: 'var(--warning)' },
+        { id: 3, title: '✅ مشروع مكتمل', message: 'اكتمل مشروع "وكالة تسويق" وتم تسليمه', type: 'success', read: true, time: new Date(Date.now() - 1000 * 60 * 60).toISOString(), icon: 'fa-check-circle', color: 'var(--success)' },
+        { id: 4, title: '🔧 تحديث النظام', message: 'تم تحديث النظام إلى الإصدار v1.2.0', type: 'info', read: false, time: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), icon: 'fa-code-branch', color: 'var(--info)' },
+        { id: 5, title: '💬 رسالة جديدة', message: 'استلمت رسالة جديدة من سارة المطور', type: 'chat', read: true, time: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), icon: 'fa-comment', color: 'var(--gold)' },
+        { id: 6, title: '💰 فاتورة جديدة', message: 'تم إنشاء فاتورة جديدة للعميل "محمد علي"', type: 'billing', read: false, time: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), icon: 'fa-file-invoice-dollar', color: 'var(--gold-dark)' },
+        { id: 7, title: '🛡️ حماية', message: 'تم اكتشاف محاولة دخول غير مصرح بها وتم حظرها', type: 'security', read: false, time: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(), icon: 'fa-shield-alt', color: 'var(--danger)' },
+        { id: 8, title: '📦 نسخة احتياطية', message: 'تم إنشاء نسخة احتياطية تلقائية للمشاريع', type: 'backup', read: true, time: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), icon: 'fa-database', color: 'var(--info)' },
+    ];
+    
+    function loadNotifications() {
+        notifications = demoNotifications;
+        updateUnreadCount();
+        renderNotifications();
+    }
+    
+    function updateUnreadCount() {
+        const unread = notifications.filter(n => !n.read).length;
+        document.getElementById('unreadCount').innerHTML = `${unread} غير مقروء`;
+    }
+    
+    function renderNotifications() {
+        let filtered = notifications;
+        if (currentFilter === 'unread') filtered = notifications.filter(n => !n.read);
+        if (currentFilter === 'read') filtered = notifications.filter(n => n.read);
+        
+        const container = document.getElementById('notificationsList');
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash" style="font-size: 64px; color: var(--gold-light);"></i>
+                    <h3>لا توجد إشعارات</h3>
+                    <p>سيظهر هنا كل ما يتعلق بنشاطاتك</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = filtered.map(n => `
+            <div class="notification-item ${!n.read ? 'unread' : ''}" onclick="markAsRead('${n.id}')">
+                <div class="notification-icon" style="background: ${n.color}15;">
+                    <i class="fas ${n.icon}" style="color: ${n.color};"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${n.title}</div>
+                    <div class="notification-message">${n.message}</div>
+                    <div class="notification-time">${getTimeAgo(new Date(n.time))}</div>
+                </div>
+                <div class="notification-actions">
+                    ${!n.read ? `<button class="mark-read-btn" onclick="event.stopPropagation(); markAsRead('${n.id}')"><i class="fas fa-check"></i></button>` : ''}
+                    <button class="btn-icon-danger" onclick="event.stopPropagation(); deleteNotification('${n.id}')"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function markAsRead(notificationId) {
+        const notification = notifications.find(n => n.id == notificationId);
+        if (notification) {
+            notification.read = true;
+            updateUnreadCount();
+            renderNotifications();
+        }
+    }
+    
+    function markAllAsRead() {
+        notifications.forEach(n => n.read = true);
+        updateUnreadCount();
+        renderNotifications();
+        showToast('✅ تم تعليم جميع الإشعارات كمقروءة');
+    }
+    
+    function deleteNotification(notificationId) {
+        notifications = notifications.filter(n => n.id != notificationId);
+        updateUnreadCount();
+        renderNotifications();
+        showToast('🗑️ تم حذف الإشعار');
+    }
+    
+    function filterNotifications(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderNotifications();
+    }
+    
+    function getTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'الآن';
+        if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+        if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+        if (diffDays < 7) return `منذ ${diffDays} يوم`;
+        return date.toLocaleDateString('ar');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    loadNotifications();
+</script>
+</body>
+</html>

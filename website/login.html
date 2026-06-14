@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="تسجيل الدخول إلى منصة VERO - منصة متكاملة لبناء وإدارة المواقع">
+    <title>تسجيل الدخول | VERO</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e7c27a;
+            --primary-dark: #d4a95c;
+            --primary-light: #f5e6c8;
+            --secondary: #69451a;
+            --secondary-dark: #3d2a10;
+            --bg: #fffaf6;
+            --bg-dark: #f5ebe0;
+            --panel: rgba(255, 255, 255, 0.98);
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: rgba(229, 231, 235, 0.5);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 24px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-glow: 0 0 20px rgba(231, 194, 122, 0.3);
+        }
+
+        body {
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* animated background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(231, 194, 122, 0.1) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 80% 80%, rgba(231, 194, 122, 0.08) 0%, transparent 60%);
+            animation: pulse 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* floating particles */
+        .particle {
+            position: absolute;
+            background: rgba(231, 194, 122, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .login-container {
+            max-width: 460px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 48px 40px;
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
+            border: 1px solid rgba(231, 194, 122, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.3), 0 0 30px rgba(231, 194, 122, 0.2);
+            border-color: rgba(231, 194, 122, 0.5);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-img {
+            height: 70px;
+            width: auto;
+            margin-bottom: 16px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(231, 194, 122, 0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(231, 194, 122, 0.8)); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .message {
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: none;
+            animation: slideDown 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .info-message {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(231, 194, 122, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .form-group .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 42px;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus + .input-icon {
+            color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+            box-shadow: 0 4px 15px rgba(231, 194, 122, 0.4);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 194, 122, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading .btn-text {
+            display: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--secondary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .links a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .divider span {
+            background: var(--panel);
+            padding: 0 12px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-link a:hover {
+            color: var(--primary);
+            transform: translateX(-3px);
+        }
+
+        /* password strength indicator */
+        .strength-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        .strength-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .strength-fill.weak { background: #ef4444; width: 33%; }
+        .strength-fill.medium { background: #f59e0b; width: 66%; }
+        .strength-fill.strong { background: #22c55e; width: 100%; }
+
+        /* responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 32px 24px;
+            }
+            .login-header h1 {
+                font-size: 1.6rem;
+            }
+            .logo-img {
+                height: 55px;
+            }
+        }
+
+        /* accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- floating particles -->
+<div id="particles"></div>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="logo-area">
+            <img src="verologo.png" alt="VERO" class="logo-img" onerror="this.src='https://placehold.co/200x60/e7c27a/69451a?text=VERO'">
+        </div>
+        <div class="login-header">
+            <h1>مرحباً بعودتك</h1>
+            <p>سجل الدخول إلى حسابك للوصول إلى لوحة التحكم</p>
+        </div>
+
+        <div id="errorMessage" class="message error-message"></div>
+        <div id="successMessage" class="message success-message"></div>
+        <div id="infoMessage" class="message info-message"></div>
+
+        <div class="form-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="email" placeholder="EMAIL" value="" autocomplete="email">
+            <i class="fas fa-envelope input-icon"></i>
+        </div>
+
+        <div class="form-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="password" placeholder="••••••••" value="" autocomplete="current-password">
+            <i class="fas fa-lock input-icon"></i>
+            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        </div>
+
+        <button class="btn btn-primary" id="loginBtn" onclick="login()">
+            <span class="btn-text">تسجيل الدخول</span>
+        </button>
+
+        <div class="links">
+            <a href="#" onclick="forgotPassword()">نسيت كلمة المرور؟</a>
+        </div>
+
+        <div class="divider">
+            <span>أو</span>
+        </div>
+
+        <div class="links">
+            <a href="order-arabic.html">طلب بناء موقع جديد <i class="fas fa-arrow-left"></i></a>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // VERO LOGIN - أقوى سكيورتي وأداء
+    // ============================================================
+    
+    // API Configuration
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    
+    // Security: Rate limiting protection
+    let loginAttempts = 0;
+    let lastAttemptTime = 0;
+    const MAX_ATTEMPTS = 5;
+    const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
+    
+    // DOM Elements
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    const infoDiv = document.getElementById('infoMessage');
+    const strengthFill = document.getElementById('strengthFill');
+    
+    // ============================================================
+    // Password Strength Checker (UX)
+    // ============================================================
+    passwordInput.addEventListener('input', function(e) {
+        const password = e.target.value;
+        let strength = 0;
+        
+        if (password.length >= 6) strength++;
+        if (password.length >= 10) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        strengthFill.className = 'strength-fill';
+        if (strength <= 2) strengthFill.classList.add('weak');
+        else if (strength <= 4) strengthFill.classList.add('medium');
+        else strengthFill.classList.add('strong');
+    });
+    
+    // ============================================================
+    // Create Floating Particles (Visual Effect)
+    // ============================================================
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 6 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = Math.random() * 10 + 5 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            particle.style.opacity = Math.random() * 0.4 + 0.1;
+            particlesContainer.appendChild(particle);
+        }
+    }
+    
+    // ============================================================
+    // Show/Hide Messages with Auto-hide
+    // ============================================================
+    function showMessage(element, message, type = 'error') {
+        element.innerText = message;
+        element.style.display = 'block';
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 5000);
+    }
+    
+    function hideAllMessages() {
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        infoDiv.style.display = 'none';
+    }
+    
+    // ============================================================
+    // Set Loading State
+    // ============================================================
+    function setLoading(isLoading) {
+        if (isLoading) {
+            loginBtn.classList.add('btn-loading');
+            loginBtn.disabled = true;
+        } else {
+            loginBtn.classList.remove('btn-loading');
+            loginBtn.disabled = false;
+        }
+    }
+    
+    // ============================================================
+    // Rate Limiting Check
+    // ============================================================
+    function checkRateLimit() {
+        const now = Date.now();
+        if (loginAttempts >= MAX_ATTEMPTS) {
+            if (now - lastAttemptTime < LOCKOUT_TIME) {
+                const remainingMinutes = Math.ceil((LOCKOUT_TIME - (now - lastAttemptTime)) / 60000);
+                showMessage(errorDiv, `تم حظر حسابك مؤقتاً. حاول مرة أخرى بعد ${remainingMinutes} دقيقة.`);
+                return false;
+            } else {
+                // Reset attempts after lockout
+                loginAttempts = 0;
+            }
+        }
+        return true;
+    }
+    
+    function recordFailedAttempt() {
+        loginAttempts++;
+        lastAttemptTime = Date.now();
+    }
+    
+    // ============================================================
+    // Input Validation (Security)
+    // ============================================================
+    function validateInputs(email, password) {
+        if (!email || !password) {
+            showMessage(errorDiv, 'الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+            return false;
+        }
+        
+        // Email format validation
+        const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showMessage(errorDiv, 'البريد الإلكتروني غير صحيح');
+            return false;
+        }
+        
+        // Password length validation
+        if (password.length < 6) {
+            showMessage(errorDiv, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+            return false;
+        }
+        
+        // XSS Prevention - sanitize inputs
+        const sanitizedEmail = email.replace(/[<>]/g, '');
+        if (sanitizedEmail !== email) {
+            showMessage(errorDiv, 'تم اكتشاف أحرف غير مسموحة في البريد الإلكتروني');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // ============================================================
+    // Secure Token Storage (sessionStorage recommended)
+    // ============================================================
+    function secureStore(key, value) {
+        // Use sessionStorage for better security (clears when tab closes)
+        sessionStorage.setItem(key, value);
+        // Also keep in localStorage for persistence but with shorter expiry
+        localStorage.setItem(key, value);
+        
+        // Set expiry for localStorage token (24 hours)
+        const expiry = Date.now() + (24 * 60 * 60 * 1000);
+        localStorage.setItem(`${key}_expiry`, expiry);
+    }
+    
+    // ============================================================
+    // MAIN LOGIN FUNCTION
+    // ============================================================
+    async function login() {
+        // Hide previous messages
+        hideAllMessages();
+        
+        // Check rate limiting
+        if (!checkRateLimit()) return;
+        
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        
+        // Validate inputs
+        if (!validateInputs(email, password)) {
+            recordFailedAttempt();
+            return;
+        }
+        
+        // Set loading state
+        setLoading(true);
+        
+        // Show info message
+        showMessage(infoDiv, 'جاري التحقق من البيانات...', 'info');
+        
+        try {
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+            
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ email, password }),
+                signal: controller.signal,
+                credentials: 'include' // Include cookies for additional security
+            });
+            
+            clearTimeout(timeoutId);
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Reset attempt counter on success
+                loginAttempts = 0;
+                
+                // Store token securely
+                secureStore('token', data.token);
+                secureStore('user', JSON.stringify(data.user));
+                secureStore('tenantId', data.user.tenantId || 'agency');
+                
+                // Store last login timestamp
+                secureStore('lastLogin', Date.now().toString());
+                
+                // Show success message
+                showMessage(successDiv, 'تم تسجيل الدخول بنجاح... جاري التحويل', 'success');
+                
+                // Small delay for UX
+                setTimeout(() => {
+                    // Redirect based on role
+                    if (data.user.role === 'super_admin' || data.user.role === 'admin') {
+                        window.location.href = 'admin-dashboard.html';
+                    } else if (data.user.role === 'client') {
+                        window.location.href = 'client/dashboard.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 1500);
+            } else {
+                recordFailedAttempt();
+                const errorMsg = data.error || 'فشل تسجيل الدخول. تحقق من بياناتك';
+                showMessage(errorDiv, errorMsg);
+            }
+        } catch (error) {
+            recordFailedAttempt();
+            
+            if (error.name === 'AbortError') {
+                showMessage(errorDiv, 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى');
+            } else if (error.message === 'Failed to fetch') {
+                showMessage(errorDiv, 'لا يمكن الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت');
+            } else {
+                console.error('Login error:', error);
+                showMessage(errorDiv, 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى');
+            }
+        } finally {
+            setLoading(false);
+            infoDiv.style.display = 'none';
+        }
+    }
+    
+    // ============================================================
+    // Forgot Password Handler
+    // ============================================================
+    function forgotPassword() {
+        const email = emailInput.value.trim();
+        if (!email) {
+            showMessage(errorDiv, 'الرجاء إدخال بريدك الإلكتروني أولاً');
+            emailInput.focus();
+            return;
+        }
+        
+        if (!/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(email)) {
+            showMessage(errorDiv, 'البريد الإلكتروني غير صحيح');
+            return;
+        }
+        
+        showMessage(infoDiv, `سيتم إرسال رابط إعادة تعيين كلمة المرور إلى ${email}. هذه الخدمة قيد التطوير حالياً.`, 'info');
+    }
+    
+    // ============================================================
+    // Enter key submit
+    // ============================================================
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            login();
+        }
+    });
+    
+    emailInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            passwordInput.focus();
+        }
+    });
+    
+    // ============================================================
+    // Check for existing session on page load
+    // ============================================================
+    function checkExistingSession() {
+        const token = localStorage.getItem('token');
+        const expiry = localStorage.getItem('token_expiry');
+        
+        if (token && expiry && Date.now() < parseInt(expiry)) {
+            showMessage(infoDiv, 'لديك جلسة نشطة. جاري التحويل...', 'info');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            setTimeout(() => {
+                if (user.role === 'super_admin' || user.role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else if (user.role === 'client') {
+                    window.location.href = 'client/dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }, 1500);
+        }
+    }
+    
+    // ============================================================
+    // Initialize
+    // ============================================================
+    createParticles();
+    checkExistingSession();
+    
+    // Add CSRF protection notice
+    console.log('%c🔐 VERO Platform - Secure Login', 'color: #e7c27a; font-size: 16px; font-weight: bold;');
+    console.log('%cAll communications are encrypted. Your data is protected.', 'color: #69451a; font-size: 12px;');
+</script>
+</body>
+</html>

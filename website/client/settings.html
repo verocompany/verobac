@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات | VERO</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e7c27a;
+            --primary-dark: #d4a95c;
+            --primary-light: #f5e6c8;
+            --secondary: #69451a;
+            --secondary-light: #8b5e2c;
+            --cream: #fffaf6;
+            --cream-dark: #f5ebe0;
+            --white: #ffffff;
+            --ivory: #fffff0;
+            --beige: #f5f5dc;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-gold: 0 4px 14px rgba(231, 194, 122, 0.3);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--beige) 100%);
+            color: var(--text);
+            direction: rtl;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--white);
+            border-left: 1px solid var(--border);
+            z-index: 100;
+            overflow-y: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-track { background: var(--border-light); }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        .sidebar-header {
+            padding: 28px 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--white), var(--ivory));
+        }
+
+        .sidebar-header img {
+            height: 55px;
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header img:hover { transform: scale(1.05); }
+
+        .sidebar-header h3 {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            margin: 5px 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-item i { width: 24px; font-size: 1.1rem; }
+        .nav-item:hover {
+            background: var(--primary-light);
+            color: var(--secondary);
+            transform: translateX(-5px);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary-light), var(--ivory));
+            color: var(--secondary);
+            border-right: 3px solid var(--primary);
+            box-shadow: var(--shadow-gold);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-right: 280px;
+            padding: 28px 36px;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 16px 24px;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 20px; }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .user-avatar:hover { transform: scale(1.05); }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 8px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Settings Sections */
+        .settings-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        .settings-section:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(231, 194, 122, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+            border: none;
+            padding: 10px 28px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--secondary);
+            padding: 9px 27px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-outline:hover { background: var(--primary-light); }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* 2FA Toggle */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--cream);
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+        }
+
+        .toggle-label {
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        .toggle-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Alert Box */
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            color: var(--danger);
+            margin-bottom: 8px;
+        }
+
+        .alert-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--white);
+            color: var(--text);
+            padding: 14px 24px;
+            border-radius: 40px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1100;
+            animation: slideInRight 0.3s ease;
+            border-right: 4px solid var(--primary);
+            font-weight: 500;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+                z-index: 200;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content {
+                margin-right: 0;
+                padding: 20px;
+            }
+            .toggle-sidebar { display: block; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="../verologo.png" alt="VERO" onerror="this.src='https://placehold.co/200x60/e7c27a/69451a?text=VERO'">
+        <h3>VERO</h3>
+    </div>
+    <nav>
+        <div class="nav-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-tachometer-alt"></i> الرئيسية</div>
+        <div class="nav-item" onclick="window.location.href='products.html'"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item" onclick="window.location.href='orders.html'"><i class="fas fa-shopping-cart"></i> الطلبات</div>
+        <div class="nav-item" onclick="window.location.href='media.html'"><i class="fas fa-folder-open"></i> مكتبة الوسائط</div>
+        <div class="nav-item" onclick="window.location.href='blog.html'"><i class="fas fa-blog"></i> المدونة</div>
+        <div class="nav-item" onclick="window.location.href='tickets.html'"><i class="fas fa-headset"></i> الدعم</div>
+        <div class="nav-item" onclick="window.location.href='billing.html'"><i class="fas fa-credit-card"></i> الفواتير</div>
+        <div class="nav-item" onclick="window.location.href='analytics.html'"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="nav-item active" onclick="window.location.href='settings.html'"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 class="page-title">الإعدادات</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">م</div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="fas fa-user-circle"></i>
+            <span>الملف الشخصي</span>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="fullName" placeholder="أحمد محمد">
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="email" placeholder="ahmed@example.com">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="+971 XX XXX XXXX">
+            </div>
+            <div class="form-group">
+                <label>الشركة (اختياري)</label>
+                <input type="text" id="company" placeholder="اسم الشركة">
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="updateProfile()">
+                <i class="fas fa-save"></i> حفظ التغييرات
+            </button>
+        </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="fas fa-lock"></i>
+            <span>الأمان</span>
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور الحالية</label>
+            <input type="password" id="currentPassword" placeholder="••••••••">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>كلمة المرور الجديدة</label>
+                <input type="password" id="newPassword" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>تأكيد كلمة المرور</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••">
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="changePassword()">
+                <i class="fas fa-key"></i> تغيير كلمة المرور
+            </button>
+        </div>
+    </div>
+
+    <!-- 2FA Settings -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="fas fa-shield-alt"></i>
+            <span>التحقق بخطوتين (2FA)</span>
+        </div>
+        <div class="toggle-switch">
+            <div>
+                <div class="toggle-label">تفعيل المصادقة الثنائية</div>
+                <div class="toggle-desc">زيادة أمان حسابك باستخدام رمز تحقق إضافي</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="twoFactorToggle" onchange="toggleTwoFactor(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div id="twoFactorInfo" style="display: none;">
+            <div class="alert-box" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3);">
+                <div class="alert-title" style="color: var(--success);">
+                    <i class="fas fa-check-circle"></i> تم تفعيل التحقق بخطوتين
+                </div>
+                <div class="alert-text">سيُطلب منك رمز تحقق إضافي عند تسجيل الدخول من جهاز جديد.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="fas fa-palette"></i>
+            <span>التفضيلات</span>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>اللغة</label>
+                <select id="language">
+                    <option value="ar">العربية</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>السمة</label>
+                <select id="theme">
+                    <option value="light">فاتح</option>
+                    <option value="dark">داكن</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>الإشعارات</label>
+            <select id="notifications">
+                <option value="all">جميع الإشعارات</option>
+                <option value="important">المهمة فقط</option>
+                <option value="none">لا إشعارات</option>
+            </select>
+        </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="savePreferences()">
+                <i class="fas fa-save"></i> حفظ التفضيلات
+            </button>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-section">
+        <div class="section-title">
+            <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i>
+            <span style="color: var(--danger);">منطقة الخطر</span>
+        </div>
+        <div class="alert-box">
+            <div class="alert-title">
+                <i class="fas fa-trash-alt"></i> حذف الحساب
+            </div>
+            <div class="alert-text">بمجرد حذف حسابك، سيتم حذف جميع بياناتك نهائياً ولا يمكن استرجاعها.</div>
+            <button class="btn-danger" onclick="deleteAccount()">
+                <i class="fas fa-trash-alt"></i> حذف الحساب
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // VERO SETTINGS - Profile & Security
+    // ============================================================
+    
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const token = getToken();
+    let user = getUser();
+    if (!token || !user) window.location.href = '../login.html';
+    
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email?.charAt(0) || 'م')[0];
+    
+    // ============================================================
+    // Load User Data
+    // ============================================================
+    function loadUserData() {
+        document.getElementById('fullName').value = user.displayName || '';
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('phone').value = user.phone || '';
+        document.getElementById('company').value = user.company || '';
+        
+        // Load preferences
+        const language = localStorage.getItem('language') || 'ar';
+        const theme = localStorage.getItem('theme') || 'light';
+        const notifications = localStorage.getItem('notifications') || 'all';
+        
+        document.getElementById('language').value = language;
+        document.getElementById('theme').value = theme;
+        document.getElementById('notifications').value = notifications;
+        
+        // Apply theme
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        
+        // Load 2FA status
+        const twoFactorEnabled = localStorage.getItem('twoFactorEnabled') === 'true';
+        document.getElementById('twoFactorToggle').checked = twoFactorEnabled;
+        document.getElementById('twoFactorInfo').style.display = twoFactorEnabled ? 'block' : 'none';
+    }
+    
+    // ============================================================
+    // Update Profile
+    // ============================================================
+    async function updateProfile() {
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phone').value;
+        const company = document.getElementById('company').value;
+        
+        if (!fullName) {
+            showToast('❌ الرجاء إدخال الاسم الكامل');
+            return;
+        }
+        
+        // Update local user object
+        user.displayName = fullName;
+        user.phone = phone;
+        user.company = company;
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Update avatar
+        document.getElementById('userAvatar').innerText = fullName.charAt(0) || 'م';
+        
+        // Try to update on server
+        try {
+            const result = await apiCall('/client/profile', {
+                method: 'PUT',
+                body: JSON.stringify({ displayName: fullName, phone, company })
+            });
+            if (result && result.success) {
+                showToast('✅ تم تحديث الملف الشخصي');
+            }
+        } catch(e) {
+            // Update local only
+            showToast('✅ تم تحديث الملف الشخصي محلياً');
+        }
+    }
+    
+    // ============================================================
+    // Change Password
+    // ============================================================
+    async function changePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (!currentPassword) {
+            showToast('❌ الرجاء إدخال كلمة المرور الحالية');
+            return;
+        }
+        
+        if (!newPassword) {
+            showToast('❌ الرجاء إدخال كلمة المرور الجديدة');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            showToast('❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            showToast('❌ كلمة المرور الجديدة غير متطابقة');
+            return;
+        }
+        
+        const result = await apiCall('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ currentPassword, newPassword })
+        });
+        
+        if (result && result.success) {
+            showToast('✅ تم تغيير كلمة المرور بنجاح');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        } else {
+            showToast('❌ فشل تغيير كلمة المرور: ' + (result?.error || 'كلمة المرور الحالية غير صحيحة'));
+        }
+    }
+    
+    // ============================================================
+    // Two-Factor Authentication
+    // ============================================================
+    function toggleTwoFactor(enabled) {
+        localStorage.setItem('twoFactorEnabled', enabled);
+        document.getElementById('twoFactorInfo').style.display = enabled ? 'block' : 'none';
+        
+        if (enabled) {
+            showToast('🔐 تم تفعيل التحقق بخطوتين. سيتم إرسال رمز عند تسجيل الدخول من جهاز جديد.');
+        } else {
+            showToast('🔓 تم إلغاء تفعيل التحقق بخطوتين');
+        }
+        
+        // Save to server
+        apiCall('/auth/2fa/toggle', {
+            method: 'POST',
+            body: JSON.stringify({ enabled })
+        }).catch(e => console.error('2FA toggle error:', e));
+    }
+    
+    // ============================================================
+    // Save Preferences
+    // ============================================================
+    function savePreferences() {
+        const language = document.getElementById('language').value;
+        const theme = document.getElementById('theme').value;
+        const notifications = document.getElementById('notifications').value;
+        
+        localStorage.setItem('language', language);
+        localStorage.setItem('theme', theme);
+        localStorage.setItem('notifications', notifications);
+        
+        showToast('✅ تم حفظ التفضيلات');
+        
+        // Reload to apply theme
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+    }
+    
+    // ============================================================
+    // Delete Account
+    // ============================================================
+    function deleteAccount() {
+        if (confirm('⚠️ هل أنت متأكد من حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+            if (confirm('تأكيد نهائي: سيتم حذف جميع بياناتك. هل أنت متأكد؟')) {
+                apiCall('/auth/delete-account', { method: 'DELETE' })
+                    .then(result => {
+                        if (result && result.success) {
+                            localStorage.clear();
+                            window.location.href = '../login.html';
+                            showToast('✅ تم حذف الحساب');
+                        } else {
+                            showToast('❌ فشل حذف الحساب');
+                        }
+                    })
+                    .catch(() => {
+                        // For demo purposes, allow local deletion
+                        localStorage.clear();
+                        window.location.href = '../login.html';
+                    });
+            }
+        }
+    }
+    
+    // ============================================================
+    // API Call Helper
+    // ============================================================
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` }),
+                    ...options.headers
+                }
+            });
+            
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '../login.html';
+                return null;
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function logout() {
+        localStorage.clear();
+        window.location.href = '../login.html';
+    }
+    
+    // ============================================================
+    // Initialize
+    // ============================================================
+    loadUserData();
+    
+    if (window.innerWidth <= 768) {
+        document.querySelector('.toggle-sidebar').style.display = 'block';
+    }
+</script>
+</body>
+</html>

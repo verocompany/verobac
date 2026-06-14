@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates - VERO Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0A0E1A;
+            --panel: #111827;
+            --card: #1A2233;
+            --card-border: #1E2D42;
+            --cyan: #00D4FF;
+            --purple: #7C3AED;
+            --green: #10B981;
+            --amber: #F59E0B;
+            --red: #EF4444;
+            --blue: #3B82F6;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #4A5568;
+            --topbar-h: 48px;
+            --sidebar-w: 220px;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            font-size: 13px;
+            line-height: 1.5;
+            overflow: hidden;
+            direction: rtl;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--topbar-h);
+            background: var(--panel);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+            gap: 16px;
+        }
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: var(--sidebar-w);
+        }
+        .brand-name {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+        }
+        .brand-env {
+            font-family: var(--mono);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--cyan);
+            background: rgba(0,212,255,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+        .topbar-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--card-border);
+        }
+        .status-pill.online { color: var(--green); border-color: rgba(16,185,129,0.2); }
+        .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            font-family: var(--mono);
+        }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+        .user-role { font-size: 10px; color: var(--text-secondary); }
+
+        .sidebar {
+            position: fixed;
+            top: var(--topbar-h);
+            right: 0;
+            width: var(--sidebar-w);
+            height: calc(100vh - var(--topbar-h));
+            background: var(--panel);
+            border-left: 1px solid var(--card-border);
+            overflow-y: auto;
+            z-index: 90;
+        }
+        .sidebar-nav { padding: 12px 0; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+            border-right: 2px solid transparent;
+            font-size: 12px;
+        }
+        .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); border-right-color: rgba(255,255,255,0.1); }
+        .nav-item.active { color: var(--cyan); background: rgba(0,212,255,0.06); border-right-color: var(--cyan); }
+        .nav-label { font-size: 12px; }
+        .nav-divider { height: 1px; background: var(--card-border); margin: 8px 16px; }
+
+        .main {
+            margin-right: var(--sidebar-w);
+            margin-top: var(--topbar-h);
+            height: calc(100vh - var(--topbar-h));
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .page-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+        .page-subtitle { font-size: 12px; color: var(--text-secondary); }
+
+        .category-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .category-btn {
+            padding: 6px 16px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-secondary);
+        }
+        .category-btn:hover, .category-btn.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0,212,255,0.05);
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .template-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .template-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+        .template-preview {
+            height: 160px;
+            background: linear-gradient(135deg, var(--bg), var(--panel));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .template-preview i { font-size: 48px; color: var(--cyan); opacity: 0.5; }
+        .template-info { padding: 16px; }
+        .template-name {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 6px;
+        }
+        .template-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; }
+        .template-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .feature-tag {
+            padding: 2px 8px;
+            background: rgba(124,58,237,0.15);
+            border-radius: 20px;
+            font-size: 9px;
+            color: var(--purple);
+        }
+        .template-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1px solid transparent;
+        }
+        .btn-primary { background: var(--cyan); color: #000; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary { background: var(--card); color: var(--text-secondary); border-color: var(--card-border); }
+        .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        .modal-content {
+            background: var(--panel);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            width: 500px;
+            max-width: 90%;
+        }
+        .modal-content input { width: 100%; padding: 10px; margin-bottom: 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: 6px; color: var(--text-primary); }
+        .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background: var(--card);
+            border: 1px solid var(--cyan);
+            border-radius: 8px;
+            color: var(--cyan);
+            z-index: 1000;
+            animation: slideIn 0.2s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2A3A50; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-brand">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#00D4FF"/>
+            <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+            <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+            <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#00D4FF" opacity="0.5"/>
+        </svg>
+        <span class="brand-name">VERO Studio</span>
+        <span class="brand-env">PRODUCTION</span>
+    </div>
+    <div class="topbar-status">
+        <div class="status-pill online"><span class="dot"></span>API</div>
+        <div class="status-pill online"><span class="dot"></span>Templates</div>
+    </div>
+    <div class="topbar-right">
+        <div class="user-chip" onclick="logout()">
+            <div class="user-avatar" id="userAvatar">SA</div>
+            <div class="user-info">
+                <span class="user-name" id="userName">Super Admin</span>
+                <span class="user-role" id="userRole">super_admin</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar">
+    <nav class="sidebar-nav">
+        <a class="nav-item" onclick="navigate('dashboard')"><i class="fas fa-tachometer-alt"></i><span class="nav-label">Dashboard</span></a>
+        <a class="nav-item" onclick="navigate('projects')"><i class="fas fa-folder-open"></i><span class="nav-label">Projects</span></a>
+        <a class="nav-item" onclick="navigate('clients')"><i class="fas fa-users"></i><span class="nav-label">Clients</span></a>
+        <a class="nav-item active" onclick="navigate('templates')"><i class="fas fa-palette"></i><span class="nav-label">Templates</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="navigate('deploy')"><i class="fas fa-rocket"></i><span class="nav-label">Deploy</span></a>
+        <a class="nav-item" onclick="navigate('domains')"><i class="fas fa-globe"></i><span class="nav-label">Domains</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="navigate('team')"><i class="fas fa-users-cog"></i><span class="nav-label">Team</span></a>
+        <a class="nav-item" onclick="navigate('settings')"><i class="fas fa-cog"></i><span class="nav-label">Settings</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span class="nav-label">Logout</span></a>
+    </nav>
+</div>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Templates Library</h1>
+            <p class="page-subtitle">Professional website templates for quick project creation</p>
+        </div>
+        <button class="btn btn-primary" onclick="showCreateTemplateModal()"><i class="fas fa-plus"></i> New Template</button>
+    </div>
+
+    <div class="category-filter" id="categoryFilter"></div>
+
+    <div id="templatesGrid" class="templates-grid">
+        <div class="empty-state"><i class="fas fa-spinner fa-pulse"></i> Loading templates...</div>
+    </div>
+</main>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+    <div class="modal-content">
+        <h3 id="previewTitle">Template Preview</h3>
+        <div id="previewBody"></div>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="closeModal('previewModal')">Close</button>
+            <button class="btn btn-primary" id="useTemplateBtn" onclick="useTemplate()">Use Template</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let currentTemplate = null;
+    let currentCategory = 'all';
+    
+    const categories = [
+        { id: 'all', name: 'All', icon: 'fa-th-large' },
+        { id: 'restaurant', name: 'Restaurants', icon: 'fa-utensils' },
+        { id: 'ecommerce', name: 'E-Commerce', icon: 'fa-shopping-cart' },
+        { id: 'corporate', name: 'Corporate', icon: 'fa-building' },
+        { id: 'realestate', name: 'Real Estate', icon: 'fa-home' },
+        { id: 'healthcare', name: 'Healthcare', icon: 'fa-hospital-user' },
+        { id: 'beauty', name: 'Beauty & Spa', icon: 'fa-spa' },
+        { id: 'education', name: 'Education', icon: 'fa-graduation-cap' },
+        { id: 'legal', name: 'Legal', icon: 'fa-gavel' },
+        { id: 'fitness', name: 'Fitness', icon: 'fa-dumbbell' }
+    ];
+    
+    const templates = [
+        { id: 1, name: 'Modern Restaurant', category: 'restaurant', price: 0, popular: true, desc: 'Elegant design with online reservation system', features: ['Menu Manager', 'Table Booking', 'Gallery', 'Reviews'] },
+        { id: 2, name: 'Fashion Store', category: 'ecommerce', price: 0, popular: true, desc: 'Stylish online store with cart and checkout', features: ['Product Filters', 'Shopping Cart', 'Payment Gateway', 'Wishlist'] },
+        { id: 3, name: 'Corporate Business', category: 'corporate', price: 99, popular: false, desc: 'Professional corporate website', features: ['Services', 'Team', 'Portfolio', 'Blog'] },
+        { id: 4, name: 'Luxury Real Estate', category: 'realestate', price: 0, popular: true, desc: 'Property listings with virtual tours', features: ['Property Search', 'Agent Profiles', 'Mortgage Calc', 'Virtual Tours'] },
+        { id: 5, name: 'Medical Clinic', category: 'healthcare', price: 0, popular: false, desc: 'Clinic appointment system', features: ['Doctor Profiles', 'Online Booking', 'Services', 'Patient Portal'] },
+        { id: 6, name: 'Beauty Salon', category: 'beauty', price: 0, popular: true, desc: 'Salon booking and service showcase', features: ['Service Menu', 'Staff Profiles', 'Online Booking', 'Price List'] },
+        { id: 7, name: 'Law Firm', category: 'legal', price: 0, popular: false, desc: 'Legal services website', features: ['Practice Areas', 'Attorney Profiles', 'Case Results', 'Contact Form'] },
+        { id: 8, name: 'Fitness Gym', category: 'fitness', price: 0, popular: true, desc: 'Gym membership and class schedule', features: ['Class Schedule', 'Trainer Profiles', 'Membership Plans', 'BMI Calculator'] }
+    ];
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = 'login.html';
+    
+    document.getElementById('userName').innerText = user.displayName || user.email || 'Admin';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email || 'A')[0].toUpperCase();
+    document.getElementById('userRole').innerText = user.role === 'super_admin' ? 'Super Admin' : user.role;
+    
+    function navigate(page) { window.location.href = `${page}.html`; }
+    function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function renderCategories() {
+        const container = document.getElementById('categoryFilter');
+        container.innerHTML = categories.map(cat => `
+            <button class="category-btn ${currentCategory === cat.id ? 'active' : ''}" onclick="filterByCategory('${cat.id}')">
+                <i class="fas ${cat.icon}"></i> ${cat.name}
+            </button>
+        `).join('');
+    }
+    
+    function filterByCategory(categoryId) {
+        currentCategory = categoryId;
+        renderCategories();
+        renderTemplates();
+    }
+    
+    function renderTemplates() {
+        const filtered = currentCategory === 'all' 
+            ? templates 
+            : templates.filter(t => t.category === currentCategory);
+        
+        const container = document.getElementById('templatesGrid');
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-palette"></i><p>No templates in this category</p></div>`;
+            return;
+        }
+        
+        container.innerHTML = filtered.map(t => `
+            <div class="template-card">
+                <div class="template-preview">
+                    <i class="fas ${getCategoryIcon(t.category)}"></i>
+                    ${t.popular ? '<div style="position: absolute; top: 12px; right: 12px; background: var(--cyan); color: #000; padding: 2px 8px; border-radius: 20px; font-size: 9px;">Popular</div>' : ''}
+                    ${t.price > 0 ? `<div style="position: absolute; top: 12px; left: 12px; background: var(--amber); color: #000; padding: 2px 8px; border-radius: 20px; font-size: 9px;">${t.price} AED</div>` : '<div style="position: absolute; top: 12px; left: 12px; background: var(--green); color: #000; padding: 2px 8px; border-radius: 20px; font-size: 9px;">Free</div>'}
+                </div>
+                <div class="template-info">
+                    <div class="template-name">${t.name}</div>
+                    <div class="template-desc">${t.desc}</div>
+                    <div class="template-features">
+                        ${t.features.slice(0, 3).map(f => `<span class="feature-tag">${f}</span>`).join('')}
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-secondary" onclick="previewTemplate(${t.id})"><i class="fas fa-eye"></i> Preview</button>
+                        <button class="btn btn-primary" onclick="useTemplateNow(${t.id})"><i class="fas fa-download"></i> Use</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function getCategoryIcon(category) {
+        const icons = { restaurant: 'fa-utensils', ecommerce: 'fa-shopping-cart', corporate: 'fa-building', realestate: 'fa-home', healthcare: 'fa-hospital-user', beauty: 'fa-spa', education: 'fa-graduation-cap', legal: 'fa-gavel', fitness: 'fa-dumbbell' };
+        return icons[category] || 'fa-palette';
+    }
+    
+    function previewTemplate(id) {
+        currentTemplate = templates.find(t => t.id === id);
+        if (!currentTemplate) return;
+        document.getElementById('previewTitle').innerHTML = `<i class="fas fa-eye"></i> ${currentTemplate.name}`;
+        document.getElementById('previewBody').innerHTML = `
+            <div class="template-preview" style="height: 120px; margin-bottom: 16px;"><i class="fas ${getCategoryIcon(currentTemplate.category)}" style="font-size: 48px;"></i></div>
+            <p><strong>Description:</strong> ${currentTemplate.desc}</p>
+            <p><strong>Features:</strong></p>
+            <ul style="margin-right: 20px; margin-bottom: 16px;">${currentTemplate.features.map(f => `<li>${f}</li>`).join('')}</ul>
+            <p><strong>Price:</strong> ${currentTemplate.price > 0 ? currentTemplate.price + ' AED' : 'Free'}</p>
+        `;
+        document.getElementById('previewModal').style.display = 'flex';
+    }
+    
+    function useTemplateNow(id) {
+        currentTemplate = templates.find(t => t.id === id);
+        useTemplate();
+    }
+    
+    async function useTemplate() {
+        if (!currentTemplate) return;
+        const projectName = prompt('Enter new project name:', currentTemplate.name + ' - ' + new Date().toLocaleDateString());
+        if (!projectName) return;
+        
+        showToast('🔄 Creating project from template...');
+        
+        try {
+            const result = await fetch(`${API_URL}/projects`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+                body: JSON.stringify({ name: projectName, templateId: currentTemplate.id })
+            });
+            const data = await result.json();
+            if (data.success) {
+                showToast('✅ Project created! Redirecting to builder...');
+                localStorage.setItem('currentProjectId', data.id);
+                setTimeout(() => window.location.href = `builder.html?id=${data.id}`, 1500);
+            } else {
+                showToast('❌ Failed to create project');
+            }
+        } catch(e) {
+            showToast('❌ Error creating project');
+        }
+        closeModal('previewModal');
+    }
+    
+    function showCreateTemplateModal() {
+        alert('Template creation feature coming soon');
+    }
+    
+    renderCategories();
+    renderTemplates();
+</script>
+</body>
+</html>

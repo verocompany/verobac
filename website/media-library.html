@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة الوسائط | VERO</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #e7c27a;
+            --primary-dark: #d4a95c;
+            --secondary: #69451a;
+            --bg: #fffaf6;
+            --bg-dark: #f5ebe0;
+            --panel: #ffffff;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 16px;
+        }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--secondary);
+        }
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 32px;
+            background: var(--bg-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-area.drag-over { border-color: var(--primary); background: rgba(231,194,122,0.1); }
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .file-card {
+            background: var(--panel);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            text-align: center;
+            padding: 16px;
+        }
+        .file-preview {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .file-preview img, .file-preview video { max-width: 100%; max-height: 100%; border-radius: 8px; }
+        .file-preview i { font-size: 48px; color: var(--primary); }
+        .file-name { font-size: 13px; margin-bottom: 8px; word-break: break-all; }
+        .file-size { font-size: 11px; color: var(--text-muted); }
+        .file-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: center; }
+        .btn-icon { padding: 6px 12px; font-size: 12px; }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 12px;
+            display: none;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        @media (max-width: 768px) {
+            .files-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-images"></i> مكتبة الوسائط</h1>
+        <button class="btn" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-upload"></i> رفع ملفات
+        </button>
+    </div>
+    
+    <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: var(--primary);"></i>
+        <p>اسحب وأفلت الملفات هنا أو انقر للرفع</p>
+        <p style="font-size: 12px; color: var(--text-muted);">يدعم: صور، PDF، فيديو، صوت (حد أقصى 50MB)</p>
+    </div>
+    
+    <input type="file" id="fileInput" multiple style="display: none;" onchange="uploadFiles(this.files)">
+    
+    <div id="progressContainer" class="progress-bar"><div class="progress-fill"></div></div>
+    
+    <div class="files-grid" id="filesGrid">
+        <div style="text-align: center; padding: 40px;">جاري التحميل...</div>
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+    const API_URL = 'http://localhost:3001/api';
+    
+    if (!token) window.location.href = '/login.html';
+    
+    let currentFiles = [];
+    
+    async function loadFiles() {
+        try {
+            const response = await fetch(`${API_URL}/upload/files`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                currentFiles = data.files;
+                renderFiles();
+            }
+        } catch (error) {
+            console.error('Error loading files:', error);
+        }
+    }
+    
+    function renderFiles() {
+        if (currentFiles.length === 0) {
+            document.getElementById('filesGrid').innerHTML = `
+                <div style="text-align: center; padding: 60px; grid-column: 1/-1;">
+                    <i class="fas fa-folder-open" style="font-size: 64px; color: var(--text-muted);"></i>
+                    <p>لا توجد ملفات</p>
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">رفع أول ملف</button>
+                </div>
+            `;
+            return;
+        }
+        
+        const html = currentFiles.map(file => `
+            <div class="file-card">
+                <div class="file-preview">
+                    ${getPreviewHtml(file)}
+                </div>
+                <div class="file-name" title="${file.fileName}">${truncate(file.fileName, 30)}</div>
+                <div class="file-size">${formatBytes(file.fileSize)}</div>
+                <div class="file-actions">
+                    <button class="btn btn-icon" onclick="copyUrl('${file.url}')"><i class="fas fa-copy"></i></button>
+                    <button class="btn btn-icon" onclick="deleteFile('${file.key}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('filesGrid').innerHTML = html;
+    }
+    
+    function getPreviewHtml(file) {
+        const ext = file.fileName.split('.').pop().toLowerCase();
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+        const videoExts = ['mp4', 'webm', 'mov'];
+        
+        if (imageExts.includes(ext)) {
+            return `<img src="${file.url}" alt="${file.fileName}">`;
+        } else if (videoExts.includes(ext)) {
+            return `<video controls><source src="${file.url}"></video>`;
+        } else if (ext === 'pdf') {
+            return `<i class="fas fa-file-pdf"></i>`;
+        } else {
+            return `<i class="fas fa-file"></i>`;
+        }
+    }
+    
+    async function uploadFiles(files) {
+        if (!files.length) return;
+        
+        const formData = new FormData();
+        for (let file of files) {
+            formData.append('files', file);
+        }
+        
+        const progressBar = document.getElementById('progressContainer');
+        const progressFill = document.querySelector('.progress-fill');
+        progressBar.style.display = 'block';
+        
+        try {
+            const response = await fetch(`${API_URL}/upload/files`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                progressFill.style.width = '100%';
+                setTimeout(() => { progressBar.style.display = 'none'; progressFill.style.width = '0%'; }, 1000);
+                loadFiles();
+            } else {
+                alert('فشل الرفع: ' + (data.error || 'خطأ غير معروف'));
+                progressBar.style.display = 'none';
+            }
+        } catch (error) {
+            alert('حدث خطأ أثناء الرفع');
+            progressBar.style.display = 'none';
+        }
+    }
+    
+    async function deleteFile(key) {
+        if (!confirm('هل أنت متأكد من حذف هذا الملف؟')) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/upload/file/${encodeURIComponent(key)}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                loadFiles();
+            } else {
+                alert('فشل الحذف');
+            }
+        } catch (error) {
+            alert('حدث خطأ أثناء الحذف');
+        }
+    }
+    
+    function copyUrl(url) {
+        navigator.clipboard.writeText(url);
+        alert('تم نسخ الرابط');
+    }
+    
+    function truncate(str, len) {
+        return str.length > len ? str.substring(0, len) + '...' : str;
+    }
+    
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Drag and drop
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        uploadFiles(e.dataTransfer.files);
+    });
+    
+    loadFiles();
+</script>
+</body>
+</html>

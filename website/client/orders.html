@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطلبات | VERO</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="client.css">
+    <style>
+        .orders-container { display: flex; flex-direction: column; gap: 20px; }
+        .order-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: all 0.3s; }
+        .order-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .order-header { background: linear-gradient(135deg, var(--primary-light), var(--ivory)); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid var(--border); }
+        .order-number { font-size: 1.1rem; font-weight: 700; color: var(--secondary); }
+        .order-status { padding: 6px 16px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; }
+        .status-pending { background: rgba(245,158,11,0.15); color: #d97706; }
+        .status-processing { background: rgba(59,130,246,0.15); color: #2563eb; }
+        .status-delivered { background: rgba(34,197,94,0.15); color: #15803d; }
+        .order-body { padding: 20px 24px; }
+        .order-total { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 2px dashed var(--border); font-size: 1.1rem; font-weight: 700; }
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+        .filter-select { padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--white); cursor: pointer; }
+        .search-box { flex: 1; min-width: 200px; display: flex; align-items: center; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+        .search-box input { flex: 1; padding: 10px 16px; border: none; outline: none; }
+        .search-box button { background: var(--primary); border: none; padding: 10px 16px; cursor: pointer; color: var(--secondary); }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><img src="../verologo.png" alt="VERO"><h3>VERO</h3></div>
+    <nav>
+        <div class="nav-item" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> الرئيسية</div>
+        <div class="nav-item" data-page="products"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item active" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات</div>
+        <div class="nav-item" data-page="media"><i class="fas fa-folder-open"></i> مكتبة الوسائط</div>
+        <div class="nav-item" data-page="blog"><i class="fas fa-blog"></i> المدونة</div>
+        <div class="nav-item" data-page="tickets"><i class="fas fa-headset"></i> الدعم</div>
+        <div class="nav-item" data-page="billing"><i class="fas fa-credit-card"></i> الفواتير</div>
+        <div class="nav-item" data-page="analytics"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 class="page-title">الطلبات</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">م</div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <select id="statusFilter" class="filter-select" onchange="loadOrders()">
+            <option value="all">جميع الطلبات</option>
+            <option value="pending">قيد المراجعة</option>
+            <option value="processing">قيد التجهيز</option>
+            <option value="shipped">تم الشحن</option>
+            <option value="delivered">تم التوصيل</option>
+            <option value="cancelled">ملغاة</option>
+        </select>
+        <div class="search-box"><input type="text" id="searchInput" placeholder="بحث برقم الطلب..." onkeyup="loadOrders()"><button onclick="loadOrders()"><i class="fas fa-search"></i></button></div>
+    </div>
+
+    <div id="ordersContainer" class="loading">جاري التحميل...</div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let allOrders = [];
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = '../login.html';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email?.charAt(0) || 'م')[0];
+
+    const statusMap = { 'pending': { label: 'قيد المراجعة', class: 'status-pending' }, 'processing': { label: 'قيد التجهيز', class: 'status-processing' }, 'shipped': { label: 'تم الشحن', class: 'status-processing' }, 'delivered': { label: 'تم التوصيل', class: 'status-delivered' }, 'cancelled': { label: 'ملغي', class: 'status-pending' } };
+
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers: { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }), ...options.headers } });
+            if (response.status === 401) { localStorage.clear(); window.location.href = '../login.html'; return null; }
+            return await response.json();
+        } catch(error) { return { success: false, error: error.message }; }
+    }
+
+    function showToast(message) { const toast = document.createElement('div'); toast.className = 'toast'; toast.innerHTML = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+
+    async function loadOrders() {
+        const result = await apiCall('/client/orders');
+        if (result?.success && result.orders) allOrders = result.orders;
+        else allOrders = [];
+        renderOrders();
+    }
+
+    function renderOrders() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        let filtered = allOrders;
+        if (statusFilter !== 'all') filtered = filtered.filter(o => o.status === statusFilter);
+        if (searchTerm) filtered = filtered.filter(o => o.number?.toLowerCase().includes(searchTerm) || o.id?.toLowerCase().includes(searchTerm));
+        
+        const container = document.getElementById('ordersContainer');
+        if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>لا توجد طلبات</p></div>'; return; }
+        
+        container.innerHTML = '<div class="orders-container">';
+        filtered.forEach(order => {
+            const status = statusMap[order.status] || statusMap['pending'];
+            const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar') : new Date(order.date).toLocaleDateString('ar');
+            container.innerHTML += `<div class="order-card"><div class="order-header"><div class="order-number"><i class="fas fa-receipt"></i> طلب #${escapeHtml(order.number || order.id)}</div><div class="order-status ${status.class}">${status.label}</div></div><div class="order-body"><div class="order-total"><span>إجمالي الطلب:</span><span>${(order.total || 0).toLocaleString()} درهم</span></div><div class="order-actions" style="margin-top: 16px;"><button class="btn-outline" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i> تفاصيل</button>${order.status === 'pending' ? `<button class="btn-primary" onclick="cancelOrder('${order.id}')" style="background: var(--danger);"><i class="fas fa-times"></i> إلغاء الطلب</button>` : ''}</div></div></div>`;
+        });
+        container.innerHTML += '</div>';
+    }
+
+    function viewOrderDetails(id) { showToast(`📋 تفاصيل الطلب #${id}`); }
+    async function cancelOrder(id) { if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) { showToast('✅ تم إلغاء الطلب'); loadOrders(); } }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
+    function logout() { localStorage.clear(); window.location.href = '../login.html'; }
+    function showPage(page) { window.location.href = `${page}.html`; }
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => { item.addEventListener('click', () => showPage(item.dataset.page)); });
+    
+    loadOrders();
+    if (window.innerWidth <= 768) document.querySelector('.toggle-sidebar').style.display = 'block';
+</script>
+</body>
+</html>

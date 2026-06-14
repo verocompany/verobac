@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتجات | VERO</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="client.css">
+    <style>
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .product-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: all 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        .product-image { height: 180px; background: linear-gradient(135deg, var(--cream), var(--beige)); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-image i { font-size: 64px; color: var(--primary); }
+        .product-info { padding: 20px; }
+        .product-name { font-size: 1.1rem; font-weight: 700; color: var(--secondary); margin-bottom: 8px; }
+        .product-price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .product-stock { display: inline-block; background: var(--primary-light); color: var(--secondary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; margin-bottom: 12px; }
+        .product-actions { display: flex; gap: 8px; margin-top: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 768px) { .products-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><img src="../verologo.png" alt="VERO"><h3>VERO</h3></div>
+    <nav>
+        <div class="nav-item" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> الرئيسية</div>
+        <div class="nav-item active" data-page="products"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات</div>
+        <div class="nav-item" data-page="media"><i class="fas fa-folder-open"></i> مكتبة الوسائط</div>
+        <div class="nav-item" data-page="blog"><i class="fas fa-blog"></i> المدونة</div>
+        <div class="nav-item" data-page="tickets"><i class="fas fa-headset"></i> الدعم</div>
+        <div class="nav-item" data-page="billing"><i class="fas fa-credit-card"></i> الفواتير</div>
+        <div class="nav-item" data-page="analytics"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 class="page-title">المنتجات</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">م</div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+            <h3 style="margin: 0;"><i class="fas fa-box"></i> قائمة المنتجات</h3>
+            <button class="btn-primary" onclick="openAddProductModal()"><i class="fas fa-plus"></i> إضافة منتج</button>
+        </div>
+        <div id="productsContainer" class="loading">جاري التحميل...</div>
+    </div>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle"><i class="fas fa-plus"></i> إضافة منتج</h3>
+        <div class="form-row">
+            <div><label>اسم المنتج *</label><input type="text" id="productName" placeholder="اسم المنتج"></div>
+            <div><label>السعر (درهم) *</label><input type="number" id="productPrice" placeholder="0"></div>
+        </div>
+        <div class="form-row">
+            <div><label>سعر التخفيض</label><input type="number" id="productDiscountPrice" placeholder="0"></div>
+            <div><label>المخزون</label><input type="number" id="productStock" placeholder="0"></div>
+        </div>
+        <div class="form-row">
+            <div><label>SKU</label><input type="text" id="productSku" placeholder="SKU-001"></div>
+            <div><label>رابط الصورة</label><input type="text" id="productImage" placeholder="https://..."></div>
+        </div>
+        <label>الوصف</label>
+        <textarea id="productDescription" rows="4" placeholder="وصف المنتج..."></textarea>
+        <div class="modal-buttons">
+            <button class="btn-outline" onclick="closeModal('productModal')">إلغاء</button>
+            <button class="btn-primary" onclick="saveProduct()">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let editingProductId = null;
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = '../login.html';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email?.charAt(0) || 'م')[0];
+
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }), ...options.headers }
+            });
+            if (response.status === 401) { localStorage.clear(); window.location.href = '../login.html'; return null; }
+            return await response.json();
+        } catch(error) { return { success: false, error: error.message }; }
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function loadProducts() {
+        const result = await apiCall('/client/products');
+        const container = document.getElementById('productsContainer');
+        if (result?.success && result.products?.length) {
+            let html = '<div class="products-grid">';
+            result.products.forEach(p => {
+                html += `<div class="product-card"><div class="product-image">${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}">` : '<i class="fas fa-box"></i>'}</div><div class="product-info"><div class="product-name">${escapeHtml(p.name)}</div><div class="product-price">${p.discountPrice ? `<del>${p.price}</del> ${p.discountPrice}` : p.price} <small>درهم</small></div><div class="product-stock"><i class="fas fa-boxes"></i> المخزون: ${p.stock || 0}</div><div class="product-actions"><button class="btn-warning" onclick="editProduct('${p.id}', '${escapeHtml(p.name)}', ${p.price}, ${p.discountPrice || 0}, ${p.stock || 0}, '${escapeHtml(p.sku || '')}', '${escapeHtml(p.image || '')}', '${escapeHtml(p.description || '')}')"><i class="fas fa-edit"></i> تعديل</button><button class="btn-danger" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i> حذف</button></div></div></div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        } else { container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>لا توجد منتجات</p><button class="btn-primary" onclick="openAddProductModal()">أضف أول منتج</button></div>'; }
+    }
+
+    function openAddProductModal() {
+        editingProductId = null;
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus"></i> إضافة منتج';
+        document.getElementById('productName').value = '';
+        document.getElementById('productPrice').value = '';
+        document.getElementById('productDiscountPrice').value = '';
+        document.getElementById('productStock').value = '';
+        document.getElementById('productSku').value = '';
+        document.getElementById('productImage').value = '';
+        document.getElementById('productDescription').value = '';
+        document.getElementById('productModal').style.display = 'flex';
+    }
+
+    function editProduct(id, name, price, discountPrice, stock, sku, image, description) {
+        editingProductId = id;
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> تعديل منتج';
+        document.getElementById('productName').value = name;
+        document.getElementById('productPrice').value = price;
+        document.getElementById('productDiscountPrice').value = discountPrice;
+        document.getElementById('productStock').value = stock;
+        document.getElementById('productSku').value = sku;
+        document.getElementById('productImage').value = image;
+        document.getElementById('productDescription').value = description;
+        document.getElementById('productModal').style.display = 'flex';
+    }
+
+    async function saveProduct() {
+        const name = document.getElementById('productName').value;
+        const price = parseInt(document.getElementById('productPrice').value);
+        if (!name || !price) { showToast('❌ الرجاء إدخال اسم المنتج والسعر'); return; }
+        const productData = { name, price, discountPrice: parseInt(document.getElementById('productDiscountPrice').value) || null, stock: parseInt(document.getElementById('productStock').value) || 0, sku: document.getElementById('productSku').value, image: document.getElementById('productImage').value, description: document.getElementById('productDescription').value };
+        let result;
+        if (editingProductId) result = await apiCall(`/client/products/${editingProductId}`, { method: 'PUT', body: JSON.stringify(productData) });
+        else result = await apiCall('/client/products', { method: 'POST', body: JSON.stringify(productData) });
+        if (result?.success) { closeModal('productModal'); loadProducts(); showToast(editingProductId ? '✅ تم تحديث المنتج' : '✅ تم إضافة المنتج'); }
+        else showToast('❌ فشل الحفظ');
+    }
+
+    async function deleteProduct(id) { if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) { const result = await apiCall(`/client/products/${id}`, { method: 'DELETE' }); if (result?.success) { loadProducts(); showToast('✅ تم حذف المنتج'); } else showToast('❌ فشل الحذف'); } }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
+    function logout() { localStorage.clear(); window.location.href = '../login.html'; }
+    function showPage(page) { window.location.href = `${page}.html`; }
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => { item.addEventListener('click', () => showPage(item.dataset.page)); });
+    
+    loadProducts();
+    if (window.innerWidth <= 768) document.querySelector('.toggle-sidebar').style.display = 'block';
+</script>
+</body>
+</html>

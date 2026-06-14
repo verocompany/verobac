@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>الذكاء الاصطناعي - VERO Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .ai-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .ai-card { background: var(--white); border-radius: var(--radius-xl); padding: 28px; text-align: center; transition: all 0.3s; cursor: pointer; }
+        .ai-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+        .ai-icon { width: 70px; height: 70px; background: linear-gradient(135deg, var(--gold-light), var(--cream)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .ai-icon i { font-size: 32px; color: var(--gold-dark); }
+        .ai-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .ai-desc { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
+        .input-area { background: var(--white); border-radius: var(--radius-xl); padding: 24px; margin-top: 24px; }
+        .ai-response { background: var(--cream); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; display: none; }
+        .typing-indicator { display: flex; gap: 4px; padding: 12px; }
+        .typing-indicator span { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; animation: typing 1.4s infinite; }
+        @keyframes typing { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body>
+<div class="page-content">
+    <h3><i class="fas fa-robot"></i> مركز الذكاء الاصطناعي</h3>
+    <p style="color: var(--gray); margin-bottom: 24px;">استخدم الذكاء الاصطناعي لتوليد المحتوى وبناء المواقع بسرعة</p>
+    <div class="ai-features">
+        <div class="ai-card" onclick="openAITool('generate-html')"><div class="ai-icon"><i class="fas fa-code"></i></div><div class="ai-title">توليد كود HTML</div><div class="ai-desc">أنشئ أقسام HTML كاملة بناءً على وصفك</div><span class="badge-success">جديد</span></div>
+        <div class="ai-card" onclick="openAITool('generate-css')"><div class="ai-icon"><i class="fab fa-css3-alt"></i></div><div class="ai-title">توليد CSS</div><div class="ai-desc">صمم أنماط CSS احترافية</div></div>
+        <div class="ai-card" onclick="openAITool('generate-seo')"><div class="ai-icon"><i class="fas fa-chart-line"></i></div><div class="ai-title">تحسين SEO</div><div class="ai-desc">اقتراحات لتحسين ظهور موقعك</div></div>
+        <div class="ai-card" onclick="openAITool('generate-content')"><div class="ai-icon"><i class="fas fa-file-alt"></i></div><div class="ai-title">كتابة المحتوى</div><div class="ai-desc">أنشئ نصوص تسويقية وصفحات هبوط</div></div>
+    </div>
+    <div id="aiToolPanel" class="input-area" style="display: none;"><div id="toolHeader"></div><div id="toolInput"></div><div id="toolResponse" class="ai-response"></div></div>
+</div>
+
+<script>
+    let currentTool = null;
+    function openAITool(tool){currentTool=tool; const p=document.getElementById('aiToolPanel'); const h=document.getElementById('toolHeader'); const i=document.getElementById('toolInput'); const r=document.getElementById('toolResponse'); p.style.display='block'; r.style.display='none'; const tools={'generate-html':{title:'🤖 توليد كود HTML',placeholder:'اكتب وصفاً للقسم الذي تريد إنشائه...',button:'توليد HTML'},'generate-css':{title:'🎨 توليد CSS',placeholder:'اكتب وصفاً للتصميم الذي تريده...',button:'توليد CSS'},'generate-seo':{title:'📈 تحسين SEO',placeholder:'أدخل رابط موقعك أو وصف لنشاطك...',button:'تحليل'},'generate-content':{title:'✍️ كتابة المحتوى',placeholder:'اكتب موضوع المحتوى الذي تريده...',button:'توليد'}}; const t=tools[tool]; h.innerHTML=`<h4><i class="fas fa-brain"></i> ${t.title}</h4>`; i.innerHTML=`<div class="form-group"><label>الوصف</label><textarea id="aiPrompt" class="form-control" rows="4" placeholder="${t.placeholder}"></textarea></div><button class="btn-primary" onclick="executeAI('${tool}')"><i class="fas fa-magic"></i> ${t.button}</button>`; }
+    async function executeAI(tool){const prompt=document.getElementById('aiPrompt').value; if(!prompt){alert('الرجاء إدخال وصف');return;} const r=document.getElementById('toolResponse'); r.style.display='block'; r.innerHTML='<div class="typing-indicator"><span></span><span></span><span></span><span style="margin-right:8px;">AI يكتب...</span></div>'; setTimeout(()=>{let res=''; if(tool==='generate-html') res=`<section class="hero"><h1>${prompt.slice(0,50)}</h1><p>حلول مبتكرة</p><a href="#" class="btn">ابدأ</a></section>`; else if(tool==='generate-css') res=`.btn { background: #e7c27a; padding: 12px 24px; border-radius: 8px; }`; else if(tool==='generate-seo') res=`🔍 تحسين SEO لـ "${prompt}"\nالعناوين المقترحة: ${prompt} | أفضل الحلول`; else if(tool==='generate-content') res=`📝 محتوى لـ "${prompt}"\nنحن نقدم أفضل الحلول التقنية المتكاملة.`; else res=`نتيجة لـ "${prompt}"`; r.innerHTML=`<div><strong><i class="fas fa-robot"></i> النتيجة</strong><pre style="background:white;padding:16px;border-radius:12px;margin-top:12px;">${res}</pre><button class="btn-primary" onclick="copyResult()">نسخ</button></div>`; },1500); }
+    function copyResult(){const pre=document.querySelector('#toolResponse pre'); if(pre){navigator.clipboard.writeText(pre.innerText); showToast('✅ تم نسخ النتيجة');} }
+    function showToast(m){const t=document.createElement('div');t.className='toast-message';t.innerHTML=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
+</script>
+</body>
+</html>

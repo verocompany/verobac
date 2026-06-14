@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة العميل | VERO</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="client.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+        .website-card {
+            background: linear-gradient(135deg, var(--primary-light), var(--ivory));
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 16px;
+        }
+        .edit-mode-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .btn-edit {
+            background: var(--warning);
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #ea580c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header"><img src="../verologo.png" alt="VERO"><h3>VERO</h3></div>
+    <nav>
+        <div class="nav-item active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> الرئيسية</div>
+        <div class="nav-item" data-page="products"><i class="fas fa-box"></i> المنتجات</div>
+        <div class="nav-item" data-page="orders"><i class="fas fa-shopping-cart"></i> الطلبات</div>
+        <div class="nav-item" data-page="media"><i class="fas fa-folder-open"></i> مكتبة الوسائط</div>
+        <div class="nav-item" data-page="blog"><i class="fas fa-blog"></i> المدونة</div>
+        <div class="nav-item" data-page="tickets"><i class="fas fa-headset"></i> الدعم</div>
+        <div class="nav-item" data-page="billing"><i class="fas fa-credit-card"></i> الفواتير</div>
+        <div class="nav-item" data-page="analytics"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+        <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i> الإعدادات</div>
+        <div class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 class="page-title">لوحة التحكم</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">م</div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+    </div>
+
+    <div id="dashboardPage" class="page active">
+        <div class="stats-grid" id="statsGrid"><div class="loading">جاري التحميل...</div></div>
+        
+        <div class="card">
+            <h3><i class="fas fa-chart-line"></i> إحصائيات الزوار (آخر 7 أيام)</h3>
+            <canvas id="visitorsChart" style="max-height: 300px;"></canvas>
+        </div>
+        
+        <div class="card">
+            <h3><i class="fas fa-globe"></i> موقعي الإلكتروني</h3>
+            <div id="websiteInfo"></div>
+            <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn-primary" onclick="openWebsite()"><i class="fas fa-external-link-alt"></i> فتح الموقع</button>
+                <button class="btn-outline" onclick="copyDomain()"><i class="fas fa-copy"></i> نسخ الدومين</button>
+                <button class="btn-primary btn-edit" onclick="enterEditMode()"><i class="fas fa-edit"></i> تعديل الموقع</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3><i class="fas fa-clock"></i> آخر النشاطات</h3>
+            <div id="recentActivity"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = '../login.html';
+    
+    const tenantId = localStorage.getItem('tenantId') || user.tenantId || 'agency';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email?.charAt(0) || 'م')[0];
+    
+    let visitorsChart = null;
+
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }), ...options.headers }
+            });
+            if (response.status === 401) { localStorage.clear(); window.location.href = '../login.html'; return null; }
+            return await response.json();
+        } catch(error) { return { success: false, error: error.message }; }
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function loadDashboard() {
+        const productsResult = await apiCall('/client/products');
+        const ordersResult = await apiCall('/client/orders');
+        const blogResult = await apiCall('/client/blog');
+        const ticketsResult = await apiCall('/client/tickets');
+        
+        const productsCount = productsResult?.success ? productsResult.products?.length || 0 : 0;
+        const ordersCount = ordersResult?.success ? ordersResult.orders?.length || 0 : 0;
+        const blogCount = blogResult?.success ? blogResult.posts?.length || 0 : 0;
+        const ticketsCount = ticketsResult?.success ? ticketsResult.tickets?.length || 0 : 0;
+        
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card" onclick="window.location.href='products.html'"><div class="stat-value">${productsCount}</div><div class="stat-label">المنتجات</div></div>
+            <div class="stat-card" onclick="window.location.href='orders.html'"><div class="stat-value">${ordersCount}</div><div class="stat-label">الطلبات</div></div>
+            <div class="stat-card" onclick="window.location.href='blog.html'"><div class="stat-value">${blogCount}</div><div class="stat-label">المقالات</div></div>
+            <div class="stat-card" onclick="window.location.href='tickets.html'"><div class="stat-value">${ticketsCount}</div><div class="stat-label">تذاكر مفتوحة</div></div>
+        `;
+    }
+
+    async function loadAnalytics() {
+        const result = await apiCall('/client/analytics?period=week');
+        const labels = result?.visitorsLabels || ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+        const data = result?.visitorsData || [120, 150, 180, 200, 250, 300, 280];
+        
+        if (visitorsChart) visitorsChart.destroy();
+        visitorsChart = new Chart(document.getElementById('visitorsChart'), {
+            type: 'line',
+            data: { labels, datasets: [{ label: 'الزوار', data, borderColor: '#e7c27a', backgroundColor: 'rgba(231,194,122,0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    async function loadWebsiteInfo() {
+        const domain = localStorage.getItem('siteDomain') || `${tenantId}.verocomp.com`;
+        const name = localStorage.getItem('siteName') || 'موقعي الإلكتروني';
+        document.getElementById('websiteInfo').innerHTML = `
+            <div class="website-card">
+                <div><strong>اسم الموقع:</strong> ${escapeHtml(name)}</div>
+                <div><strong>الدومين:</strong> ${escapeHtml(domain)}</div>
+                <div><strong>الحالة:</strong> <span class="edit-mode-badge" style="background: var(--success);">🟢 نشط</span></div>
+                <div><strong>الباقة:</strong> ${user.plan === 'premium' ? 'Premium' : (user.plan === 'business' ? 'Business' : 'Essential')}</div>
+            </div>
+        `;
+    }
+
+    function openWebsite() { window.open(`https://${localStorage.getItem('siteDomain') || `${tenantId}.verocomp.com`}`, '_blank'); }
+    function copyDomain() { navigator.clipboard.writeText(localStorage.getItem('siteDomain') || `${tenantId}.verocomp.com`); showToast('✅ تم نسخ الدومين'); }
+    function enterEditMode() { window.open(`https://${localStorage.getItem('siteDomain') || `${tenantId}.verocomp.com`}?edit=true`, '_blank'); showToast('🎨 وضع التعديل - اضغط على أي نص أو صورة لتعديلها'); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m)); }
+    function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = '../login.html'; }
+    function showPage(page) { window.location.href = `${page}.html`; }
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => { item.addEventListener('click', () => showPage(item.dataset.page)); });
+    
+    loadDashboard();
+    loadAnalytics();
+    loadWebsiteInfo();
+    if (window.innerWidth <= 768) document.querySelector('.toggle-sidebar').style.display = 'block';
+</script>
+</body>
+</html>

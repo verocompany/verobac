@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>المواقع المنشورة - VERO Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .websites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .website-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .website-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .website-thumbnail {
+            height: 140px;
+            background: linear-gradient(135deg, var(--gold-light), var(--cream));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .website-thumbnail i {
+            font-size: 48px;
+            color: var(--gold);
+        }
+        
+        .website-domain {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: white;
+        }
+        
+        .website-info {
+            padding: 20px;
+        }
+        
+        .website-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .website-url {
+            font-size: 12px;
+            color: var(--gold);
+            margin-bottom: 16px;
+            word-break: break-all;
+        }
+        
+        .website-status {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+<div class="page-content">
+    <h3><i class="fas fa-globe"></i> المواقع المنشورة</h3>
+    
+    <div id="websitesGrid" class="websites-grid">
+        <div class="loading-spinner" style="text-align: center; padding: 40px;">
+            <i class="fas fa-spinner fa-pulse"></i> جاري التحميل...
+        </div>
+    </div>
+</div>
+
+<script>
+    let websites = [];
+    
+    async function loadWebsites() {
+        const result = await window.api.getWebsites();
+        if (result.success) {
+            websites = result.websites || [];
+            renderWebsites();
+        }
+    }
+    
+    function renderWebsites() {
+        const container = document.getElementById('websitesGrid');
+        
+        if (websites.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <i class="fas fa-globe" style="font-size: 64px; color: var(--gold-light);"></i>
+                    <h3>لا توجد مواقع منشورة</h3>
+                    <p>قم بنشر مشروع من مركز النشر</p>
+                    <button class="btn-primary" onclick="loadPage('deploy')">نشر موقع جديد</button>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = websites.map(w => `
+            <div class="website-card">
+                <div class="website-thumbnail">
+                    <i class="fas fa-globe"></i>
+                    <div class="website-domain">${w.domain || w.tenantId?.slice(0, 20)}</div>
+                </div>
+                <div class="website-info">
+                    <div class="website-name">${escapeHtml(w.name || w.websiteId?.slice(0, 20))}</div>
+                    <div class="website-url">
+                        <a href="https://${w.domain}" target="_blank">${w.domain || 'verocomp.com'}</a>
+                    </div>
+                    <div class="website-status">
+                        <span class="badge-${w.status === 'active' ? 'success' : 'danger'}">
+                            ${w.status === 'active' ? '🟢 نشط' : '🔴 موقوف'}
+                        </span>
+                        <span class="badge-${w.sslStatus === 'active' ? 'success' : 'warning'}">
+                            ${w.sslStatus === 'active' ? '🔒 SSL مفعل' : '⚠️ SSL قيد الانتظار'}
+                        </span>
+                    </div>
+                    <div class="project-actions" style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="btn-secondary" onclick="viewWebsite('${w.domain}')">
+                            <i class="fas fa-eye"></i> زيارة
+                        </button>
+                        <button class="btn-danger" onclick="suspendWebsite('${w.websiteId}')">
+                            <i class="fas fa-pause"></i> إيقاف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function viewWebsite(domain) {
+        if (domain) {
+            window.open(`https://${domain}`, '_blank');
+        } else {
+            alert('لا يوجد دومين للموقع');
+        }
+    }
+    
+    async function suspendWebsite(websiteId) {
+        if (confirm('هل أنت متأكد من إيقاف هذا الموقع؟')) {
+            await window.api.updateWebsite(websiteId, { status: 'suspended' });
+            loadWebsites();
+            showToast('⚠️ تم إيقاف الموقع');
+        }
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    loadWebsites();
+</script>
+</body>
+</html>

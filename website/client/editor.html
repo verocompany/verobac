@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تحرير الموقع | VERO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #e7c27a; --secondary: #69451a; --bg: #fffaf6; --card-bg: #ffffff; --border: #e5e7eb; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); direction: rtl; }
+        .editor-top-bar { background: var(--card-bg); padding: 12px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .sections-panel { width: 280px; background: white; border-left: 1px solid var(--border); padding: 15px; overflow-y: auto; }
+        .section-item { padding: 10px; margin-bottom: 10px; background: #f5f5f5; border-radius: 10px; cursor: grab; display: flex; align-items: center; gap: 10px; }
+        .canvas { flex: 1; padding: 20px; overflow-y: auto; }
+        .editor-container { display: flex; height: calc(100vh - 60px); }
+        .section-wrapper { background: white; margin: 10px 0; padding: 15px; border-radius: 10px; border: 1px solid var(--border); position: relative; }
+        .section-wrapper:hover .section-toolbar { display: flex; }
+        .section-toolbar { position: absolute; top: -12px; left: 10px; background: var(--primary); color: var(--secondary); padding: 4px 12px; border-radius: 20px; gap: 10px; display: none; font-size: 12px; }
+        .section-toolbar span { cursor: pointer; margin: 0 5px; }
+        [data-vero-editable] { cursor: pointer; transition: all 0.2s; }
+        [data-vero-editable]:hover { outline: 2px dashed var(--primary); background: rgba(231,194,122,0.1); }
+        .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
+        .edit-modal-content { background: white; padding: 20px; border-radius: 10px; width: 400px; }
+        .edit-modal-content input, .edit-modal-content textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border); border-radius: 8px; }
+        .btn-primary { background: var(--primary); border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .btn-secondary { background: var(--secondary); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="editor-top-bar">
+    <button class="btn-secondary" onclick="window.history.back()">رجوع</button>
+    <div><button class="btn-primary" onclick="saveChanges()">حفظ التغييرات</button></div>
+</div>
+
+<div class="editor-container">
+    <div class="sections-panel">
+        <h4>الأقسام المتاحة</h4>
+        <div class="section-item" draggable="true" data-section="hero" ondragstart="dragStart(event)"><i class="fas fa-home"></i> قسم ترحيبي</div>
+        <div class="section-item" draggable="true" data-section="products" ondragstart="dragStart(event)"><i class="fas fa-box"></i> منتجات</div>
+        <div class="section-item" draggable="true" data-section="about" ondragstart="dragStart(event)"><i class="fas fa-info-circle"></i> من نحن</div>
+        <div class="section-item" draggable="true" data-section="contact" ondragstart="dragStart(event)"><i class="fas fa-envelope"></i> تواصل معنا</div>
+    </div>
+    <div class="canvas" ondragover="dragOver(event)" ondrop="dropSection(event)">
+        <div id="websitePreview">
+            <div class="section-wrapper" data-section-id="hero" data-section-type="hero">
+                <div class="section-toolbar"><span onclick="moveUp(this)">⬆</span><span onclick="moveDown(this)">⬇</span><span onclick="hideSection(this)">👁</span><span onclick="duplicateSection(this)">📋</span></div>
+                <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 40px; text-align: center;">
+                    <h1 data-vero-editable="text" data-field="hero_title">مرحباً بكم في متجرنا</h1>
+                    <p data-vero-editable="text" data-field="hero_subtitle">أفضل المنتجات بأفضل الأسعار</p>
+                    <a href="#" class="btn" style="background: var(--primary); padding: 10px 20px; border-radius: 8px; text-decoration: none; color: var(--secondary);" data-vero-editable="text" data-field="hero_button">تسوق الآن</a>
+                </div>
+            </div>
+            <div class="section-wrapper" data-section-id="products" data-section-type="products">
+                <div class="section-toolbar"><span onclick="moveUp(this)">⬆</span><span onclick="moveDown(this)">⬇</span><span onclick="hideSection(this)">👁</span><span onclick="duplicateSection(this)">📋</span></div>
+                <div style="padding: 40px; text-align: center;"><h2 data-vero-editable="text" data-field="products_title">منتجاتنا</h2><div class="products-grid" style="display:flex;gap:20px;justify-content:center;"><div class="product-card" style="border:1px solid #eee;padding:20px;"><h3 data-vero-editable="text" data-field="product1_name">منتج 1</h3><p data-vero-editable="text" data-field="product1_price">100 درهم</p></div><div class="product-card" style="border:1px solid #eee;padding:20px;"><h3 data-vero-editable="text" data-field="product2_name">منتج 2</h3><p data-vero-editable="text" data-field="product2_price">200 درهم</p></div></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="edit-modal" id="editModal">
+    <div class="edit-modal-content">
+        <h3 id="modalTitle">تعديل النص</h3>
+        <input type="text" id="editInput" placeholder="أدخل النص الجديد">
+        <div id="imageUploadArea" style="display:none;"><input type="file" id="imageUpload" accept="image/*"><div id="imagePreview"></div></div>
+        <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+            <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+            <button class="btn-primary" onclick="saveEdit()">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let currentEditingElement = null, currentField = null;
+    let hiddenSections = [];
+    
+    function dragStart(e) { e.dataTransfer.setData("type", e.target.closest('.section-item').dataset.section); }
+    function dragOver(e) { e.preventDefault(); }
+    function dropSection(e) { e.preventDefault(); const type = e.dataTransfer.getData("type"); const div = document.createElement("div"); div.className = "section-wrapper"; div.innerHTML = `<div class="section-toolbar"><span onclick="moveUp(this)">⬆</span><span onclick="moveDown(this)">⬇</span><span onclick="hideSection(this)">👁</span><span onclick="duplicateSection(this)">📋</span></div><h2 data-vero-editable="text" data-field="${type}_title">${type}</h2><p data-vero-editable="text" data-field="${type}_desc">وصف القسم</p>`; document.getElementById("websitePreview").appendChild(div); initializeSortable(); }
+    
+    function initializeSortable() { new Sortable(document.getElementById('websitePreview'), { animation: 300, handle: '.section-toolbar', onEnd: () => saveChangesToLocal() }); }
+    function moveUp(btn) { const s=btn.closest('.section-wrapper'); const p=s.previousElementSibling; if(p) p.parentNode.insertBefore(s,p); saveChangesToLocal(); }
+    function moveDown(btn) { const s=btn.closest('.section-wrapper'); const n=s.nextElementSibling; if(n) n.parentNode.insertBefore(n,s); saveChangesToLocal(); }
+    function hideSection(btn) { const s=btn.closest('.section-wrapper'); s.style.display='none'; hiddenSections.push(s.dataset.sectionId); saveChangesToLocal(); }
+    function duplicateSection(btn) { const s=btn.closest('.section-wrapper'); const c=s.cloneNode(true); c.dataset.sectionId=`${s.dataset.sectionType}_${Date.now()}`; s.parentNode.insertBefore(c,s.nextSibling); initializeSortable(); saveChangesToLocal(); }
+    
+    document.addEventListener('click', (e) => { const el = e.target.closest('[data-vero-editable]'); if(!el) return; currentEditingElement = el; currentField = el.dataset.field; const type = el.dataset.veroEditable; if(type === 'image') openImageEditor(el); else openTextEditor(el.innerText); });
+    function openTextEditor(t) { document.getElementById('modalTitle').innerText='تعديل النص'; document.getElementById('editInput').style.display='block'; document.getElementById('imageUploadArea').style.display='none'; document.getElementById('editInput').value=t; document.getElementById('editModal').style.display='flex'; }
+    function openImageEditor(img) { document.getElementById('modalTitle').innerText='تغيير الصورة'; document.getElementById('editInput').style.display='none'; document.getElementById('imageUploadArea').style.display='block'; const fileInput=document.getElementById('imageUpload'); fileInput.onchange=function(e){const f=e.target.files[0];if(f){const r=new FileReader();r.onload=function(ev){document.getElementById('imagePreview').innerHTML=`<img src="${ev.target.result}" style="max-width:100%">`; currentEditingElement.src=ev.target.result;};r.readAsDataURL(f);}}; document.getElementById('editModal').style.display='flex'; }
+    function closeModal() { document.getElementById('editModal').style.display='none'; document.getElementById('imageUpload').value=''; document.getElementById('imagePreview').innerHTML=''; }
+    function saveEdit() { if(currentEditingElement){ currentEditingElement.innerText=document.getElementById('editInput').value; } closeModal(); saveChangesToLocal(); }
+    
+    function collectContent() { const d={}; document.querySelectorAll('[data-vero-editable]').forEach(el=>{const f=el.dataset.field; if(f) d[f]=el.innerText;}); return d; }
+    function saveChangesToLocal() { const data={ sectionsOrder:Array.from(document.querySelectorAll('.section-wrapper')).map(s=>s.dataset.sectionId), hiddenSections, content:collectContent(), timestamp:new Date().toISOString() }; localStorage.setItem('vero_site_edit',JSON.stringify(data)); showToast('✅ تم الحفظ محلياً'); }
+    async function saveChanges() { const tenantId=localStorage.getItem('tenantId'); if(!tenantId){alert('لا يمكن حفظ التغييرات');return;} const token=getToken(); const data={ elements:collectContent(), hiddenSections }; try{ const r=await fetch(`${API_URL}/client/content/${tenantId}`,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify(data)}); const res=await r.json(); if(res.success) showToast('✅ تم حفظ التغييرات'); else showToast('❌ فشل الحفظ'); }catch(e){ showToast('❌ خطأ في الاتصال'); } }
+    function getToken(){return localStorage.getItem('token');}
+    function showToast(m){const t=document.createElement('div');t.style.cssText='position:fixed;bottom:20px;right:20px;background:#1a1a2e;color:#e7c27a;padding:12px 24px;border-radius:12px;z-index:1000';t.innerText=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
+    function loadSavedData(){const s=localStorage.getItem('vero_site_edit');if(s){const d=JSON.parse(s);if(d.content){for(const[f,v]of Object.entries(d.content)){const el=document.querySelector(`[data-field="${f}"]`);if(el)el.innerText=v;}}if(d.hiddenSections){d.hiddenSections.forEach(id=>{const sec=document.querySelector(`[data-section-id="${id}"]`);if(sec)sec.style.display='none';});hiddenSections=d.hiddenSections;}}}
+    initializeSortable(); loadSavedData();
+</script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - VERO Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0A0E1A;
+            --panel: #111827;
+            --card: #1A2233;
+            --card-border: #1E2D42;
+            --cyan: #00D4FF;
+            --purple: #7C3AED;
+            --green: #10B981;
+            --amber: #F59E0B;
+            --red: #EF4444;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #4A5568;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .login-card {
+            background: var(--panel);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 40px 32px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-svg {
+            margin-bottom: 16px;
+        }
+
+        .logo-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 0.05em;
+        }
+
+        .logo-text span {
+            color: var(--cyan);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--red);
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--green);
+        }
+
+        .info-message {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: var(--cyan);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--cyan);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading .btn-text {
+            display: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            border: 2px solid #000;
+            border-top-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 11px;
+            transition: color 0.2s;
+        }
+
+        .links a:hover {
+            color: var(--cyan);
+        }
+
+        .status-bar {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            margin-left: 6px;
+        }
+
+        .status-dot.online {
+            background: var(--green);
+            box-shadow: 0 0 4px var(--green);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-area">
+                <div class="logo-svg">
+                    <svg width="32" height="32" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#00D4FF"/>
+                        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+                        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+                        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#00D4FF" opacity="0.5"/>
+                    </svg>
+                </div>
+                <div class="logo-text">VERO <span>Studio</span></div>
+            </div>
+            <div class="login-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to access the technical platform</p>
+            </div>
+
+            <div id="errorMessage" class="message error-message"></div>
+            <div id="successMessage" class="message success-message"></div>
+            <div id="infoMessage" class="message info-message"></div>
+
+            <div class="form-group">
+                <label>EMAIL</label>
+                <input type="email" id="email" placeholder="EMAIL" value="">
+            </div>
+
+            <div class="form-group">
+                <label>PASSWORD</label>
+                <input type="password" id="password" placeholder="••••••••" value="">
+            </div>
+
+            <button class="btn btn-primary" id="loginBtn" onclick="login()">
+                <span class="btn-text">Sign In</span>
+            </button>
+
+            <div class="links">
+                <a href="#" onclick="forgotPassword()">Forgot password?</a>
+            </div>
+
+            <div class="status-bar" id="statusBar">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Checking connection...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // VERO STUDIO LOGIN - Dark Theme + Full API Integration
+        // ============================================================
+        
+        const API_URL = 'https://verobac-production.up.railway.app/api';
+        
+        let loginAttempts = 0;
+        let lastAttemptTime = 0;
+        const MAX_ATTEMPTS = 5;
+        const LOCKOUT_TIME = 15 * 60 * 1000;
+        
+        // DOM Elements
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        const infoDiv = document.getElementById('infoMessage');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        
+        // ============================================================
+        // Check Connection to Backend
+        // ============================================================
+        async function checkConnection() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(`${API_URL}/health`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    statusDot.className = 'status-dot online';
+                    statusText.innerHTML = 'Backend online · API ready';
+                    return true;
+                } else {
+                    statusDot.className = 'status-dot';
+                    statusText.innerHTML = 'Backend error · API unavailable';
+                    return false;
+                }
+            } catch (error) {
+                statusDot.className = 'status-dot';
+                statusText.innerHTML = 'Cannot connect to backend · Check server';
+                return false;
+            }
+        }
+        
+        // ============================================================
+        // Show/Hide Messages
+        // ============================================================
+        function showMessage(element, message, type = 'error') {
+            element.innerText = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+        
+        function hideAllMessages() {
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            infoDiv.style.display = 'none';
+        }
+        
+        // ============================================================
+        // Loading State
+        // ============================================================
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loginBtn.classList.add('btn-loading');
+                loginBtn.disabled = true;
+            } else {
+                loginBtn.classList.remove('btn-loading');
+                loginBtn.disabled = false;
+            }
+        }
+        
+        // ============================================================
+        // Rate Limiting
+        // ============================================================
+        function checkRateLimit() {
+            const now = Date.now();
+            if (loginAttempts >= MAX_ATTEMPTS) {
+                if (now - lastAttemptTime < LOCKOUT_TIME) {
+                    const remainingMinutes = Math.ceil((LOCKOUT_TIME - (now - lastAttemptTime)) / 60000);
+                    showMessage(errorDiv, `Too many attempts. Try again in ${remainingMinutes} minutes.`);
+                    return false;
+                } else {
+                    loginAttempts = 0;
+                }
+            }
+            return true;
+        }
+        
+        function recordFailedAttempt() {
+            loginAttempts++;
+            lastAttemptTime = Date.now();
+        }
+        
+        // ============================================================
+        // Validate Inputs
+        // ============================================================
+        function validateInputs(email, password) {
+            if (!email || !password) {
+                showMessage(errorDiv, 'Please enter email and password');
+                return false;
+            }
+            
+            const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage(errorDiv, 'Invalid email format');
+                return false;
+            }
+            
+            if (password.length < 6) {
+                showMessage(errorDiv, 'Password must be at least 6 characters');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // ============================================================
+        // Secure Storage
+        // ============================================================
+        function secureStore(key, value) {
+            sessionStorage.setItem(key, value);
+            localStorage.setItem(key, value);
+            const expiry = Date.now() + (24 * 60 * 60 * 1000);
+            localStorage.setItem(`${key}_expiry`, expiry);
+        }
+        
+        // ============================================================
+        // MAIN LOGIN FUNCTION
+        // ============================================================
+        async function login() {
+            hideAllMessages();
+            
+            if (!checkRateLimit()) return;
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!validateInputs(email, password)) {
+                recordFailedAttempt();
+                return;
+            }
+            
+            setLoading(true);
+            showMessage(infoDiv, 'Authenticating...', 'info');
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ email, password }),
+                    signal: controller.signal,
+                    credentials: 'include'
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    loginAttempts = 0;
+                    
+                    secureStore('token', data.token);
+                    secureStore('user', JSON.stringify(data.user));
+                    secureStore('tenantId', data.user.tenantId || 'agency');
+                    secureStore('lastLogin', Date.now().toString());
+                    
+                    showMessage(successDiv, 'Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    recordFailedAttempt();
+                    showMessage(errorDiv, data.error || 'Invalid credentials');
+                }
+            } catch (error) {
+                recordFailedAttempt();
+                
+                if (error.name === 'AbortError') {
+                    showMessage(errorDiv, 'Request timeout. Please try again.');
+                } else if (error.message === 'Failed to fetch') {
+                    showMessage(errorDiv, 'Cannot connect to server. Check your connection.');
+                } else {
+                    showMessage(errorDiv, 'Unexpected error. Please try again.');
+                }
+            } finally {
+                setLoading(false);
+                infoDiv.style.display = 'none';
+            }
+        }
+        
+        // ============================================================
+        // Forgot Password
+        // ============================================================
+        function forgotPassword() {
+            const email = emailInput.value.trim();
+            if (!email) {
+                showMessage(errorDiv, 'Please enter your email address first');
+                emailInput.focus();
+                return;
+            }
+            
+            if (!/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(email)) {
+                showMessage(errorDiv, 'Invalid email format');
+                return;
+            }
+            
+            showMessage(infoDiv, `Password reset link will be sent to ${email}. This feature is under development.`, 'info');
+        }
+        
+        // ============================================================
+        // Enter key submit
+        // ============================================================
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                login();
+            }
+        });
+        
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordInput.focus();
+            }
+        });
+        
+        // ============================================================
+        // Check existing session
+        // ============================================================
+        function checkExistingSession() {
+            const token = localStorage.getItem('token');
+            const expiry = localStorage.getItem('token_expiry');
+            
+            if (token && expiry && Date.now() < parseInt(expiry)) {
+                showMessage(infoDiv, 'You have an active session. Redirecting...', 'info');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            }
+        }
+        
+        // ============================================================
+        // Initialize
+        // ============================================================
+        checkConnection();
+        checkExistingSession();
+        setInterval(checkConnection, 30000);
+        
+        console.log('%c🔐 VERO Studio - Secure Login', 'color: #00D4FF; font-size: 12px; font-family: monospace;');
+        console.log('%cAPI Endpoint: ' + API_URL, 'color: #10B981; font-size: 10px;');
+    </script>
+</body>
+</html>

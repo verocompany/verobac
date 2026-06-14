@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERO Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#00D4FF"/>
+        <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+        <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+        <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#00D4FF" opacity="0.5"/>
+      </svg>
+    </div>
+    <span class="brand-name">VERO Studio</span>
+    <span class="brand-env">PRODUCTION</span>
+  </div>
+  <div class="topbar-status">
+    <div class="status-pill online"><span class="dot"></span>Firebase</div>
+    <div class="status-pill online"><span class="dot"></span>Cloudflare</div>
+    <div class="status-pill online"><span class="dot"></span>Railway</div>
+    <div class="status-pill online"><span class="dot"></span>Resend</div>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="showNotifications()" title="Notifications">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="badge">3</span>
+    </button>
+    <div class="user-chip">
+      <div class="user-avatar">SA</div>
+      <div class="user-info">
+        <span class="user-name">Super Admin</span>
+        <span class="user-role">vero@verocomp.com</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <nav class="sidebar-nav">
+    <a class="nav-item active" onclick="navigate('dashboard')" data-page="dashboard" title="Dashboard">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" onclick="navigate('builder')" data-page="builder" title="Builder">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span class="nav-label">Builder</span>
+    </a>
+    <a class="nav-item" onclick="navigate('clients')" data-page="clients" title="Clients">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="nav-label">Clients</span>
+    </a>
+    <a class="nav-item" onclick="navigate('projects')" data-page="projects" title="Projects">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">Projects</span>
+    </a>
+    <a class="nav-item" onclick="navigate('websites')" data-page="websites" title="Websites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span class="nav-label">Websites</span>
+    </a>
+    <a class="nav-item" onclick="navigate('deployment')" data-page="deployment" title="Deployment">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span class="nav-label">Deployment</span>
+    </a>
+
+    <div class="nav-divider"></div>
+
+    <a class="nav-item" onclick="navigate('domains')" data-page="domains" title="Domains">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="nav-label">Domains</span>
+    </a>
+    <a class="nav-item" onclick="navigate('cloudflare')" data-page="cloudflare" title="Cloudflare">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="nav-label">Cloudflare</span>
+    </a>
+    <a class="nav-item" onclick="navigate('storage')" data-page="storage" title="Storage">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      <span class="nav-label">Storage</span>
+    </a>
+    <a class="nav-item" onclick="navigate('media')" data-page="media" title="Media Library">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span class="nav-label">Media</span>
+    </a>
+    <a class="nav-item" onclick="navigate('templates')" data-page="templates" title="Templates">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+      <span class="nav-label">Templates</span>
+    </a>
+    <a class="nav-item" onclick="navigate('backups')" data-page="backups" title="Backups">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+      <span class="nav-label">Backups</span>
+    </a>
+
+    <div class="nav-divider"></div>
+
+    <a class="nav-item" onclick="navigate('team')" data-page="team" title="Team">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="nav-label">Team</span>
+    </a>
+    <a class="nav-item" onclick="navigate('chat')" data-page="chat" title="Internal Chat">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">Chat</span>
+    </a>
+    <a class="nav-item" onclick="navigate('logs')" data-page="logs" title="Activity Logs">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span class="nav-label">Logs</span>
+    </a>
+    <a class="nav-item" onclick="navigate('settings')" data-page="settings" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="nav-label">Settings</span>
+    </a>
+  </nav>
+</div>
+
+<!-- Main Content -->
+<main class="main" id="main-content">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back — here's what's happening across your infrastructure.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary">Export Report</button>
+        <button class="btn btn-primary" onclick="navigate('clients'); openModal('create-client')">+ New Client</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-icon cyan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div class="stat-body">
+          <span class="stat-value">47</span>
+          <span class="stat-label">Total Clients</span>
+          <span class="stat-delta up">+3 this month</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="stat-body">
+          <span class="stat-value">38</span>
+          <span class="stat-label">Active Subscriptions</span>
+          <span class="stat-delta up">+2 this month</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <div class="stat-body">
+          <span class="stat-value">34</span>
+          <span class="stat-label">Published Websites</span>
+          <span class="stat-delta up">+1 this week</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="stat-body">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Pending Deployments</span>
+          <span class="stat-delta neutral">2 in review</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+        <div class="stat-body">
+          <span class="stat-value">124 GB</span>
+          <span class="stat-label">R2 Storage Used</span>
+          <span class="stat-delta neutral">of 500 GB</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="stat-body">
+          <span class="stat-value">8</span>
+          <span class="stat-label">Team Members</span>
+          <span class="stat-delta neutral">3 online now</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent Projects</h3>
+          <button class="btn-link" onclick="navigate('projects')">View all</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Project</th><th>Client</th><th>Status</th><th>Developer</th><th>Updated</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">luxe-interiors.com</span></td><td>Luxe Interiors LLC</td><td><span class="badge-pill published">Published</span></td><td>J. Malik</td><td>2h ago</td></tr>
+              <tr><td><span class="mono">folio-arch.io</span></td><td>Folio Architecture</td><td><span class="badge-pill in-progress">In Progress</span></td><td>S. Chen</td><td>5h ago</td></tr>
+              <tr><td><span class="mono">northpeak-law.com</span></td><td>North Peak Legal</td><td><span class="badge-pill review">Review</span></td><td>A. Torres</td><td>1d ago</td></tr>
+              <tr><td><span class="mono">bloom-florals.shop</span></td><td>Bloom Florals</td><td><span class="badge-pill pending">Pending</span></td><td>J. Malik</td><td>2d ago</td></tr>
+              <tr><td><span class="mono">techventure-co.com</span></td><td>TechVenture Co.</td><td><span class="badge-pill ready">Ready to Deploy</span></td><td>S. Chen</td><td>3d ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Activity Feed</h3>
+          <button class="btn-link" onclick="navigate('logs')">View logs</button>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-icon deploy"></div>
+            <div class="activity-body">
+              <span class="activity-text"><strong>J. Malik</strong> deployed <span class="mono">luxe-interiors.com</span></span>
+              <span class="activity-time">2h ago</span>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon client"></div>
+            <div class="activity-body">
+              <span class="activity-text"><strong>Admin</strong> created client <strong>Bloom Florals</strong></span>
+              <span class="activity-time">4h ago</span>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon ssl"></div>
+            <div class="activity-body">
+              <span class="activity-text">SSL renewed for <span class="mono">folio-arch.io</span></span>
+              <span class="activity-time">6h ago</span>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon backup"></div>
+            <div class="activity-body">
+              <span class="activity-text">Auto-backup completed for <strong>North Peak Legal</strong></span>
+              <span class="activity-time">8h ago</span>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon deploy"></div>
+            <div class="activity-body">
+              <span class="activity-text"><strong>S. Chen</strong> deployed <span class="mono">techventure-co.com</span> v1.2</span>
+              <span class="activity-time">1d ago</span>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon domain"></div>
+            <div class="activity-body">
+              <span class="activity-text">DNS configured for <span class="mono">bloom-florals.shop</span></span>
+              <span class="activity-time">2d ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-20">
+      <div class="card-header">
+        <h3 class="card-title">Infrastructure Status</h3>
+        <span class="badge-pill published">All Systems Operational</span>
+      </div>
+      <div class="infra-grid">
+        <div class="infra-item">
+          <div class="infra-icon firebase">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1.5 8.5L12 2l10.5 6.5v7L12 22 1.5 15.5v-7z"/></svg>
+          </div>
+          <div>
+            <div class="infra-name">Firebase Auth + Firestore</div>
+            <div class="infra-detail">Latency 24ms · 99.99% uptime</div>
+          </div>
+          <div class="infra-status ok">Operational</div>
+        </div>
+        <div class="infra-item">
+          <div class="infra-icon cloudflare">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="infra-name">Cloudflare DNS + R2</div>
+            <div class="infra-detail">34 zones active · 124 GB stored</div>
+          </div>
+          <div class="infra-status ok">Operational</div>
+        </div>
+        <div class="infra-item">
+          <div class="infra-icon railway">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="infra-name">Railway API (verocomp.com/api)</div>
+            <div class="infra-detail">Response 18ms · 100% uptime</div>
+          </div>
+          <div class="infra-status ok">Operational</div>
+        </div>
+        <div class="infra-item">
+          <div class="infra-icon resend">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="infra-name">Resend Email Service</div>
+            <div class="infra-detail">142 emails sent today · 0 bounces</div>
+          </div>
+          <div class="infra-status ok">Operational</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUILDER -->
+  <div class="page" id="page-builder">
+    <div class="builder-layout">
+      <div class="builder-sidebar">
+        <div class="builder-files-header">
+          <span>FILES</span>
+          <div class="builder-file-actions">
+            <button class="icon-btn-sm" title="New file">+</button>
+            <button class="icon-btn-sm" title="New folder">📁</button>
+          </div>
+        </div>
+        <div class="file-tree">
+          <div class="file-group">
+            <div class="file-group-label">luxe-interiors.com</div>
+            <div class="file-item active"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> index.html</div>
+            <div class="file-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> style.css</div>
+            <div class="file-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> app.js</div>
+            <div class="file-folder">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> assets/
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="builder-main">
+        <div class="editor-tabs">
+          <div class="editor-tab active">index.html <span class="tab-close">×</span></div>
+          <div class="editor-tab">style.css <span class="tab-close">×</span></div>
+          <div class="editor-tab">app.js <span class="tab-close">×</span></div>
+          <button class="editor-tab-add">+</button>
+        </div>
+        <div class="editor-area">
+          <div class="line-numbers" id="line-numbers"></div>
+          <textarea class="code-editor" id="code-editor" spellcheck="false" oninput="updatePreview()"></textarea>
+        </div>
+      </div>
+      <div class="builder-preview">
+        <div class="preview-bar">
+          <span class="preview-label">LIVE PREVIEW</span>
+          <div class="preview-controls">
+            <button class="btn-sm" onclick="refreshPreview()">↻ Refresh</button>
+            <button class="btn-sm">⊞ Fullscreen</button>
+          </div>
+        </div>
+        <iframe class="preview-frame" id="preview-frame" title="Live preview"></iframe>
+        <div class="editable-panel">
+          <div class="editable-panel-header">EDITABLE MARKERS</div>
+          <div class="editable-list">
+            <div class="editable-item"><span class="editable-id">#hero-title</span><span class="editable-type">text</span></div>
+            <div class="editable-item"><span class="editable-id">#hero-image</span><span class="editable-type">image</span></div>
+            <div class="editable-item"><span class="editable-id">#cta-button</span><span class="editable-type">button</span></div>
+            <div class="editable-item"><span class="editable-id">#contact-phone</span><span class="editable-type">text</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="page" id="page-clients">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Client Management</h1>
+        <p class="page-subtitle">47 clients · 38 active subscriptions</p>
+      </div>
+      <div class="header-actions">
+        <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search clients..." oninput="filterClients(this.value)"></div>
+        <button class="btn btn-primary" onclick="openModal('create-client')">+ New Client</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table" id="clients-table">
+          <thead><tr><th>Client</th><th>Email</th><th>Websites</th><th>Plan</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Luxe Interiors LLC</strong></td><td>hello@luxeinteriors.com</td><td>1</td><td><span class="badge-pill plan-pro">Pro</span></td><td><span class="badge-pill published">Active</span></td><td>Jan 2024</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><strong>Folio Architecture</strong></td><td>info@folio-arch.io</td><td>2</td><td><span class="badge-pill plan-agency">Agency</span></td><td><span class="badge-pill published">Active</span></td><td>Mar 2024</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><strong>North Peak Legal</strong></td><td>web@northpeaklaw.com</td><td>1</td><td><span class="badge-pill plan-pro">Pro</span></td><td><span class="badge-pill published">Active</span></td><td>Apr 2024</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><strong>Bloom Florals</strong></td><td>owner@bloomflorals.shop</td><td>1</td><td><span class="badge-pill plan-starter">Starter</span></td><td><span class="badge-pill pending">Pending</span></td><td>Jun 2024</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><strong>TechVenture Co.</strong></td><td>dev@techventure.co</td><td>3</td><td><span class="badge-pill plan-agency">Agency</span></td><td><span class="badge-pill published">Active</span></td><td>Feb 2024</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View</button><button class="row-btn danger">Suspend</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="page" id="page-projects">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">Manage all website projects and their lifecycle.</p>
+      </div>
+      <div class="header-actions">
+        <select class="select-sm" onchange="filterProjects(this.value)">
+          <option value="">All Statuses</option>
+          <option>Pending</option>
+          <option>In Progress</option>
+          <option>Review</option>
+          <option>Ready for Deployment</option>
+          <option>Published</option>
+          <option>Suspended</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('create-project')">+ New Project</button>
+      </div>
+    </div>
+    <div class="project-kanban">
+      <div class="kanban-col">
+        <div class="kanban-header pending-h">Pending <span class="kanban-count">2</span></div>
+        <div class="kanban-card"><div class="kc-name">bloom-florals.shop</div><div class="kc-client">Bloom Florals</div><div class="kc-dev">Unassigned</div></div>
+        <div class="kanban-card"><div class="kc-name">sunrise-spa.com</div><div class="kc-client">Sunrise Spa</div><div class="kc-dev">Unassigned</div></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header inprogress-h">In Progress <span class="kanban-count">3</span></div>
+        <div class="kanban-card"><div class="kc-name">folio-arch.io</div><div class="kc-client">Folio Architecture</div><div class="kc-dev">S. Chen</div></div>
+        <div class="kanban-card"><div class="kc-name">delta-realty.com</div><div class="kc-client">Delta Realty</div><div class="kc-dev">J. Malik</div></div>
+        <div class="kanban-card"><div class="kc-name">vertex-gym.io</div><div class="kc-client">Vertex Gym</div><div class="kc-dev">A. Torres</div></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header review-h">Review <span class="kanban-count">2</span></div>
+        <div class="kanban-card"><div class="kc-name">northpeak-law.com</div><div class="kc-client">North Peak Legal</div><div class="kc-dev">J. Malik</div></div>
+        <div class="kanban-card"><div class="kc-name">nova-studio.co</div><div class="kc-client">Nova Studio</div><div class="kc-dev">S. Chen</div></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header ready-h">Ready <span class="kanban-count">1</span></div>
+        <div class="kanban-card highlight"><div class="kc-name">techventure-co.com</div><div class="kc-client">TechVenture Co.</div><div class="kc-dev">S. Chen</div><button class="kc-deploy-btn" onclick="navigate('deployment')">Deploy Now →</button></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-header published-h">Published <span class="kanban-count">34</span></div>
+        <div class="kanban-card"><div class="kc-name">luxe-interiors.com</div><div class="kc-client">Luxe Interiors LLC</div><div class="kc-dev">J. Malik</div></div>
+        <div class="kanban-more">+ 33 more published</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBSITES -->
+  <div class="page" id="page-websites">
+    <div class="page-header">
+      <div><h1 class="page-title">Websites</h1><p class="page-subtitle">34 published · 5 suspended</p></div>
+      <div class="header-actions">
+        <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search websites..."></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Domain</th><th>Client</th><th>SSL</th><th>Cloudflare</th><th>Last Deploy</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mono">luxe-interiors.com</span></td><td>Luxe Interiors LLC</td><td><span class="badge-pill ssl-ok">Valid</span></td><td><span class="badge-pill cf-on">Active</span></td><td>2h ago</td><td><span class="badge-pill published">Live</span></td><td><div class="row-actions"><button class="row-btn">Open</button><button class="row-btn">Dashboard</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><span class="mono">folio-arch.io</span></td><td>Folio Architecture</td><td><span class="badge-pill ssl-ok">Valid</span></td><td><span class="badge-pill cf-on">Active</span></td><td>5d ago</td><td><span class="badge-pill published">Live</span></td><td><div class="row-actions"><button class="row-btn">Open</button><button class="row-btn">Dashboard</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><span class="mono">northpeak-law.com</span></td><td>North Peak Legal</td><td><span class="badge-pill ssl-ok">Valid</span></td><td><span class="badge-pill cf-on">Active</span></td><td>12d ago</td><td><span class="badge-pill published">Live</span></td><td><div class="row-actions"><button class="row-btn">Open</button><button class="row-btn">Dashboard</button><button class="row-btn danger">Suspend</button></div></td></tr>
+            <tr><td><span class="mono">old-client.com</span></td><td>Old Client Co.</td><td><span class="badge-pill ssl-exp">Expired</span></td><td><span class="badge-pill cf-off">Paused</span></td><td>45d ago</td><td><span class="badge-pill suspended">Suspended</span></td><td><div class="row-actions"><button class="row-btn">Reactivate</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPLOYMENT -->
+  <div class="page" id="page-deployment">
+    <div class="page-header">
+      <div><h1 class="page-title">Deployment Center</h1><p class="page-subtitle">Deploy, monitor, and roll back website releases.</p></div>
+      <button class="btn btn-primary" onclick="openModal('deploy')">+ New Deployment</button>
+    </div>
+    <div class="deploy-grid">
+      <div class="card deploy-queue">
+        <div class="card-header"><h3 class="card-title">Queue</h3></div>
+        <div class="deploy-item ready">
+          <div class="deploy-dot ready-dot"></div>
+          <div class="deploy-info">
+            <div class="deploy-name">techventure-co.com</div>
+            <div class="deploy-meta">v2.1 · S. Chen · Ready</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="startDeploy('techventure-co.com')">Deploy</button>
+        </div>
+        <div class="deploy-item pending">
+          <div class="deploy-dot pending-dot"></div>
+          <div class="deploy-info">
+            <div class="deploy-name">nova-studio.co</div>
+            <div class="deploy-meta">v1.0 · S. Chen · In Review</div>
+          </div>
+          <button class="btn btn-secondary btn-sm">View</button>
+        </div>
+      </div>
+      <div class="card deploy-log-card">
+        <div class="card-header"><h3 class="card-title">Deployment Log</h3></div>
+        <div class="deploy-log" id="deploy-log">
+          <div class="log-line success">[✓] luxe-interiors.com — deployed successfully (v3.4) — 2h ago</div>
+          <div class="log-line success">[✓] delta-realty.com — deployed successfully (v1.1) — 1d ago</div>
+          <div class="log-line warn">[⚠] vertex-gym.io — rollback initiated (v1.2 → v1.1) — 2d ago</div>
+          <div class="log-line success">[✓] vertex-gym.io — rollback complete — 2d ago</div>
+          <div class="log-line success">[✓] northpeak-law.com — deployed successfully (v2.0) — 3d ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOMAINS -->
+  <div class="page" id="page-domains">
+    <div class="page-header">
+      <div><h1 class="page-title">Domain Management</h1><p class="page-subtitle">34 domains connected via Cloudflare DNS.</p></div>
+      <button class="btn btn-primary" onclick="openModal('add-domain')">+ Connect Domain</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Domain</th><th>Registrar</th><th>DNS</th><th>SSL</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mono">luxe-interiors.com</span></td><td>Cloudflare</td><td><span class="badge-pill cf-on">Proxied</span></td><td><span class="badge-pill ssl-ok">Valid · 89d</span></td><td>Dec 2025</td><td><span class="badge-pill published">Active</span></td><td><div class="row-actions"><button class="row-btn">DNS</button><button class="row-btn">SSL</button></div></td></tr>
+            <tr><td><span class="mono">folio-arch.io</span></td><td>Namecheap</td><td><span class="badge-pill cf-on">Proxied</span></td><td><span class="badge-pill ssl-ok">Valid · 120d</span></td><td>Aug 2025</td><td><span class="badge-pill published">Active</span></td><td><div class="row-actions"><button class="row-btn">DNS</button><button class="row-btn">SSL</button></div></td></tr>
+            <tr><td><span class="mono">bloom-florals.shop</span></td><td>GoDaddy</td><td><span class="badge-pill cf-pending">Pending</span></td><td><span class="badge-pill ssl-pending">Pending</span></td><td>—</td><td><span class="badge-pill pending">Configuring</span></td><td><div class="row-actions"><button class="row-btn">DNS</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOUDFLARE -->
+  <div class="page" id="page-cloudflare">
+    <div class="page-header">
+      <div><h1 class="page-title">Cloudflare Management</h1><p class="page-subtitle">Super Admin access only. DNS, SSL, R2, firewall controls.</p></div>
+      <div class="badge-pill cf-on">34 Active Zones</div>
+    </div>
+    <div class="cf-grid">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Zone Overview</h3></div>
+        <div class="cf-stats">
+          <div class="cf-stat"><span class="cf-stat-val">34</span><span class="cf-stat-label">Zones</span></div>
+          <div class="cf-stat"><span class="cf-stat-val">98.4%</span><span class="cf-stat-label">Cache Hit Rate</span></div>
+          <div class="cf-stat"><span class="cf-stat-val">1.2M</span><span class="cf-stat-label">Requests/Day</span></div>
+          <div class="cf-stat"><span class="cf-stat-val">0</span><span class="cf-stat-label">Threats Blocked</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">DNS Records — luxe-interiors.com</h3></div>
+        <div class="table-wrap">
+          <table class="data-table dns-table">
+            <thead><tr><th>Type</th><th>Name</th><th>Content</th><th>Proxied</th><th>TTL</th></tr></thead>
+            <tbody>
+              <tr><td><span class="dns-type a">A</span></td><td>@</td><td class="mono">104.21.44.12</td><td>✓</td><td>Auto</td></tr>
+              <tr><td><span class="dns-type cname">CNAME</span></td><td>www</td><td class="mono">luxe-interiors.com</td><td>✓</td><td>Auto</td></tr>
+              <tr><td><span class="dns-type mx">MX</span></td><td>@</td><td class="mono">mail.luxe-interiors.com</td><td>✗</td><td>3600</td></tr>
+              <tr><td><span class="dns-type txt">TXT</span></td><td>@</td><td class="mono">v=spf1 include:resend.com ~all</td><td>✗</td><td>3600</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="cf-panels">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">SSL / TLS</h3></div>
+        <div class="cf-setting-list">
+          <div class="cf-setting"><span>Encryption Mode</span><span class="cf-val green">Full (Strict)</span></div>
+          <div class="cf-setting"><span>Always Use HTTPS</span><span class="cf-val green">Enabled</span></div>
+          <div class="cf-setting"><span>HSTS</span><span class="cf-val green">Enabled (1yr)</span></div>
+          <div class="cf-setting"><span>Min TLS Version</span><span class="cf-val">TLS 1.2</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Firewall</h3></div>
+        <div class="cf-setting-list">
+          <div class="cf-setting"><span>WAF</span><span class="cf-val green">Active</span></div>
+          <div class="cf-setting"><span>DDoS Protection</span><span class="cf-val green">Enabled</span></div>
+          <div class="cf-setting"><span>Bot Fight Mode</span><span class="cf-val green">Enabled</span></div>
+          <div class="cf-setting"><span>Blocked IPs</span><span class="cf-val">12 rules</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Cache</h3></div>
+        <div class="cf-setting-list">
+          <div class="cf-setting"><span>Caching Level</span><span class="cf-val">Standard</span></div>
+          <div class="cf-setting"><span>Browser Cache TTL</span><span class="cf-val">4 hours</span></div>
+          <div class="cf-setting"><span>Purge All Cache</span><button class="row-btn danger">Purge</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORAGE -->
+  <div class="page" id="page-storage">
+    <div class="page-header">
+      <div><h1 class="page-title">Cloudflare R2 Storage</h1><p class="page-subtitle">124 GB used · 500 GB total</p></div>
+      <button class="btn btn-primary">↑ Upload Files</button>
+    </div>
+    <div class="storage-bar-wrap">
+      <div class="storage-bar"><div class="storage-fill" style="width:24.8%"></div></div>
+      <span class="storage-label">124 GB / 500 GB · 376 GB remaining</span>
+    </div>
+    <div class="card mt-20">
+      <div class="card-header"><h3 class="card-title">Buckets</h3></div>
+      <div class="bucket-grid">
+        <div class="bucket-card"><div class="bucket-icon">🗂</div><div class="bucket-name">vero-client-assets</div><div class="bucket-size">98.4 GB · 12,443 files</div></div>
+        <div class="bucket-card"><div class="bucket-icon">🗂</div><div class="bucket-name">vero-media-library</div><div class="bucket-size">18.2 GB · 3,821 files</div></div>
+        <div class="bucket-card"><div class="bucket-icon">🗂</div><div class="bucket-name">vero-backups</div><div class="bucket-size">7.4 GB · 892 files</div></div>
+        <div class="bucket-card add-bucket" onclick="openModal('add-bucket')"><div class="bucket-icon">+</div><div class="bucket-name">New Bucket</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDIA -->
+  <div class="page" id="page-media">
+    <div class="page-header">
+      <div><h1 class="page-title">Media Library</h1><p class="page-subtitle">3,821 assets · 18.2 GB used</p></div>
+      <div class="header-actions">
+        <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search assets..."></div>
+        <button class="btn btn-primary">↑ Upload</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="media-filters">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Images</button>
+        <button class="filter-btn">Videos</button>
+        <button class="filter-btn">Documents</button>
+      </div>
+      <div class="media-grid">
+        <div class="media-item"><div class="media-thumb img-thumb"></div><div class="media-name">hero-bg.jpg</div><div class="media-size">2.4 MB</div></div>
+        <div class="media-item"><div class="media-thumb img-thumb" style="background:#7C3AED20"></div><div class="media-name">logo-dark.png</div><div class="media-size">84 KB</div></div>
+        <div class="media-item"><div class="media-thumb img-thumb" style="background:#10B98120"></div><div class="media-name">team-photo.jpg</div><div class="media-size">1.8 MB</div></div>
+        <div class="media-item"><div class="media-thumb img-thumb" style="background:#F59E0B20"></div><div class="media-name">product-01.jpg</div><div class="media-size">3.1 MB</div></div>
+        <div class="media-item"><div class="media-thumb img-thumb" style="background:#EF444420"></div><div class="media-name">gallery-1.jpg</div><div class="media-size">1.2 MB</div></div>
+        <div class="media-item"><div class="media-thumb img-thumb" style="background:#06B6D420"></div><div class="media-name">banner.jpg</div><div class="media-size">980 KB</div></div>
+        <div class="media-item"><div class="media-thumb doc-thumb">PDF</div><div class="media-name">menu.pdf</div><div class="media-size">340 KB</div></div>
+        <div class="media-item"><div class="media-thumb vid-thumb">▶</div><div class="media-name">intro.mp4</div><div class="media-size">24 MB</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES -->
+  <div class="page" id="page-templates">
+    <div class="page-header">
+      <div><h1 class="page-title">Templates Manager</h1><p class="page-subtitle">12 reusable website templates.</p></div>
+      <button class="btn btn-primary" onclick="openModal('create-template')">+ New Template</button>
+    </div>
+    <div class="template-grid">
+      <div class="template-card"><div class="template-preview tp-1"></div><div class="template-info"><div class="template-name">Law Firm Pro</div><div class="template-cat">Legal</div><div class="template-actions"><button class="btn-sm">Edit</button><button class="btn-sm">Duplicate</button><button class="btn-sm">Apply</button></div></div></div>
+      <div class="template-card"><div class="template-preview tp-2"></div><div class="template-info"><div class="template-name">Portfolio Minimal</div><div class="template-cat">Creative</div><div class="template-actions"><button class="btn-sm">Edit</button><button class="btn-sm">Duplicate</button><button class="btn-sm">Apply</button></div></div></div>
+      <div class="template-card"><div class="template-preview tp-3"></div><div class="template-info"><div class="template-name">E-Commerce Starter</div><div class="template-cat">Commerce</div><div class="template-actions"><button class="btn-sm">Edit</button><button class="btn-sm">Duplicate</button><button class="btn-sm">Apply</button></div></div></div>
+      <div class="template-card"><div class="template-preview tp-4"></div><div class="template-info"><div class="template-name">Restaurant Classic</div><div class="template-cat">Food & Drink</div><div class="template-actions"><button class="btn-sm">Edit</button><button class="btn-sm">Duplicate</button><button class="btn-sm">Apply</button></div></div></div>
+      <div class="template-card add-template" onclick="openModal('create-template')"><div class="template-add-icon">+</div><div class="template-name">New Template</div></div>
+    </div>
+  </div>
+
+  <!-- BACKUPS -->
+  <div class="page" id="page-backups">
+    <div class="page-header">
+      <div><h1 class="page-title">Backup Manager</h1><p class="page-subtitle">Automated daily backups · 7.4 GB stored</p></div>
+      <button class="btn btn-primary">+ Manual Backup</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Project</th><th>Type</th><th>Size</th><th>Date</th><th>Contents</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>luxe-interiors.com</td><td><span class="badge-pill plan-pro">Auto</span></td><td>124 MB</td><td>Today, 02:00</td><td>HTML · CSS · JS · Assets</td><td><div class="row-actions"><button class="row-btn">Restore</button><button class="row-btn">Download</button></div></td></tr>
+            <tr><td>folio-arch.io</td><td><span class="badge-pill plan-pro">Auto</span></td><td>89 MB</td><td>Today, 02:00</td><td>HTML · CSS · JS · Assets</td><td><div class="row-actions"><button class="row-btn">Restore</button><button class="row-btn">Download</button></div></td></tr>
+            <tr><td>northpeak-law.com</td><td><span class="badge-pill cf-pending">Manual</span></td><td>56 MB</td><td>Yesterday, 14:30</td><td>HTML · CSS · JS</td><td><div class="row-actions"><button class="row-btn">Restore</button><button class="row-btn">Download</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM -->
+  <div class="page" id="page-team">
+    <div class="page-header">
+      <div><h1 class="page-title">Team Management</h1><p class="page-subtitle">8 members · 3 online</p></div>
+      <button class="btn btn-primary" onclick="openModal('invite-team')">+ Invite Member</button>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar sa">SA</div>
+        <div class="team-info"><div class="team-name">Super Admin</div><div class="team-email">admin@verocomp.com</div><div class="badge-pill plan-agency">Super Admin</div></div>
+        <div class="team-online"><span class="dot online-dot"></span>Online</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar dev">JM</div>
+        <div class="team-info"><div class="team-name">J. Malik</div><div class="team-email">j.malik@verocomp.com</div><div class="badge-pill plan-pro">Developer</div></div>
+        <div class="team-online"><span class="dot online-dot"></span>Online</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar dev">SC</div>
+        <div class="team-info"><div class="team-name">S. Chen</div><div class="team-email">s.chen@verocomp.com</div><div class="badge-pill plan-pro">Developer</div></div>
+        <div class="team-online"><span class="dot online-dot"></span>Online</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar des">AT</div>
+        <div class="team-info"><div class="team-name">A. Torres</div><div class="team-email">a.torres@verocomp.com</div><div class="badge-pill plan-starter">Designer</div></div>
+        <div class="team-online offline-text">Offline</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="page" id="page-chat">
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="chat-search"><input type="text" placeholder="Search conversations..."></div>
+        <div class="chat-channel active"># general</div>
+        <div class="chat-channel"># deployments</div>
+        <div class="chat-channel"># design</div>
+        <div class="chat-channel"># luxe-interiors-project</div>
+        <div class="chat-channel"># folio-arch-project</div>
+        <div class="chat-dm-label">DIRECT MESSAGES</div>
+        <div class="chat-dm"><div class="dm-avatar">JM</div>J. Malik <span class="dm-online"></span></div>
+        <div class="chat-dm"><div class="dm-avatar">SC</div>S. Chen <span class="dm-online"></span></div>
+        <div class="chat-dm"><div class="dm-avatar">AT</div>A. Torres</div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-header"># general</div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg"><div class="msg-avatar sa">SA</div><div class="msg-body"><div class="msg-sender">Super Admin <span class="msg-time">10:34</span></div><div class="msg-text">Good morning team — deployment for luxe-interiors.com is scheduled for today.</div></div></div>
+          <div class="chat-msg"><div class="msg-avatar dev">JM</div><div class="msg-body"><div class="msg-sender">J. Malik <span class="msg-time">10:36</span></div><div class="msg-text">Got it, I'll handle it after the final client review.</div></div></div>
+          <div class="chat-msg"><div class="msg-avatar dev">SC</div><div class="msg-body"><div class="msg-sender">S. Chen <span class="msg-time">10:41</span></div><div class="msg-text">techventure-co.com is ready for deployment whenever. All markers are set.</div></div></div>
+          <div class="chat-msg"><div class="msg-avatar sa">SA</div><div class="msg-body"><div class="msg-sender">Super Admin <span class="msg-time">11:02</span></div><div class="msg-text">Great. I'll push it through the deployment center now.</div></div></div>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" class="chat-input" id="chat-input" placeholder="Message #general..." onkeydown="sendChat(event)">
+          <button class="btn btn-primary" onclick="sendChatBtn()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="page" id="page-logs">
+    <div class="page-header">
+      <div><h1 class="page-title">Activity Logs</h1><p class="page-subtitle">Immutable system audit trail.</p></div>
+      <div class="header-actions">
+        <select class="select-sm"><option>All Events</option><option>Deployments</option><option>Client Changes</option><option>Domain Changes</option><option>Security</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Timestamp</th><th>User</th><th>Event</th><th>Target</th><th>IP</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">2024-06-13 10:41</td><td>S. Chen</td><td>DEPLOY</td><td>luxe-interiors.com v3.4</td><td>10.0.0.4</td><td><span class="badge-pill published">Success</span></td></tr>
+            <tr><td class="mono">2024-06-13 09:22</td><td>Super Admin</td><td>CLIENT_CREATE</td><td>Bloom Florals</td><td>10.0.0.1</td><td><span class="badge-pill published">Success</span></td></tr>
+            <tr><td class="mono">2024-06-13 08:10</td><td>System</td><td>BACKUP</td><td>All projects</td><td>—</td><td><span class="badge-pill published">Success</span></td></tr>
+            <tr><td class="mono">2024-06-12 18:55</td><td>J. Malik</td><td>ROLLBACK</td><td>vertex-gym.io v1.2→v1.1</td><td>10.0.0.3</td><td><span class="badge-pill review">Warn</span></td></tr>
+            <tr><td class="mono">2024-06-12 14:30</td><td>Super Admin</td><td>DNS_CHANGE</td><td>bloom-florals.shop</td><td>10.0.0.1</td><td><span class="badge-pill published">Success</span></td></tr>
+            <tr><td class="mono">2024-06-12 09:00</td><td>A. Torres</td><td>TEMPLATE_EDIT</td><td>Restaurant Classic</td><td>10.0.0.5</td><td><span class="badge-pill published">Success</span></td></tr>
+            <tr><td class="mono">2024-06-11 16:44</td><td>Unknown</td><td>LOGIN_FAIL</td><td>—</td><td>185.44.22.1</td><td><span class="badge-pill suspended">Blocked</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div><h1 class="page-title">Settings</h1><p class="page-subtitle">Application and account configuration.</p></div>
+    </div>
+    <div class="settings-layout">
+      <div class="settings-nav">
+        <div class="settings-nav-item active" onclick="showSettingsTab('account')">Account</div>
+        <div class="settings-nav-item" onclick="showSettingsTab('security')">Security</div>
+        <div class="settings-nav-item" onclick="showSettingsTab('api')">API Config</div>
+        <div class="settings-nav-item" onclick="showSettingsTab('notifications')">Notifications</div>
+        <div class="settings-nav-item" onclick="showSettingsTab('appearance')">Appearance</div>
+      </div>
+      <div class="settings-content">
+        <div class="settings-tab active" id="settings-account">
+          <h3 class="settings-section-title">Account Information</h3>
+          <div class="settings-form">
+            <div class="form-row"><label>Display Name</label><input type="text" value="Super Admin" class="form-input"></div>
+            <div class="form-row"><label>Email</label><input type="email" value="admin@verocomp.com" class="form-input"></div>
+            <div class="form-row"><label>Role</label><input type="text" value="Super Administrator" class="form-input" disabled></div>
+            <button class="btn btn-primary mt-10">Save Changes</button>
+          </div>
+        </div>
+        <div class="settings-tab" id="settings-security">
+          <h3 class="settings-section-title">Security Settings</h3>
+          <div class="settings-form">
+            <div class="form-row"><label>Current Password</label><input type="password" class="form-input" placeholder="••••••••"></div>
+            <div class="form-row"><label>New Password</label><input type="password" class="form-input" placeholder="••••••••"></div>
+            <div class="form-row"><label>Two-Factor Auth</label><div class="toggle-row"><span class="toggle-status enabled">Enabled</span><button class="btn btn-secondary btn-sm">Manage 2FA</button></div></div>
+            <button class="btn btn-primary mt-10">Update Password</button>
+          </div>
+        </div>
+        <div class="settings-tab" id="settings-api">
+          <h3 class="settings-section-title">API Configuration</h3>
+          <div class="settings-form">
+            <div class="form-row"><label>API Endpoint</label><input type="text" value="https://verocomp.com/api" class="form-input mono"></div>
+            <div class="form-row"><label>Firebase Project</label><input type="text" value="vero-studio-prod" class="form-input mono"></div>
+            <div class="form-row"><label>Cloudflare Account ID</label><input type="text" value="cf_•••••••••••••••••" class="form-input mono"></div>
+            <div class="form-row"><label>R2 Bucket</label><input type="text" value="vero-client-assets" class="form-input mono"></div>
+            <div class="form-row"><label>Resend API Key</label><input type="password" value="re_••••••••••••••••" class="form-input mono"></div>
+            <div class="form-row"><label>Railway Service URL</label><input type="text" value="https://verocomp.up.railway.app" class="form-input mono"></div>
+            <button class="btn btn-primary mt-10">Save API Config</button>
+          </div>
+        </div>
+        <div class="settings-tab" id="settings-notifications">
+          <h3 class="settings-section-title">Notification Preferences</h3>
+          <div class="settings-form">
+            <div class="notif-row"><span>Deployment success</span><input type="checkbox" checked></div>
+            <div class="notif-row"><span>Deployment failure</span><input type="checkbox" checked></div>
+            <div class="notif-row"><span>SSL expiry warnings</span><input type="checkbox" checked></div>
+            <div class="notif-row"><span>New client created</span><input type="checkbox" checked></div>
+            <div class="notif-row"><span>Login from new device</span><input type="checkbox" checked></div>
+            <div class="notif-row"><span>Storage usage alerts</span><input type="checkbox"></div>
+            <button class="btn btn-primary mt-10">Save Preferences</button>
+          </div>
+        </div>
+        <div class="settings-tab" id="settings-appearance">
+          <h3 class="settings-section-title">Appearance</h3>
+          <div class="settings-form">
+            <div class="form-row"><label>Theme</label>
+              <select class="form-input">
+                <option selected>Dark (Default)</option>
+                <option>Light</option>
+                <option>System</option>
+              </select>
+            </div>
+            <div class="form-row"><label>Accent Color</label>
+              <div class="color-picker-row">
+                <div class="color-swatch active" style="background:#00D4FF" onclick="setAccent('#00D4FF')"></div>
+                <div class="color-swatch" style="background:#7C3AED" onclick="setAccent('#7C3AED')"></div>
+                <div class="color-swatch" style="background:#10B981" onclick="setAccent('#10B981')"></div>
+                <div class="color-swatch" style="background:#F59E0B" onclick="setAccent('#F59E0B')"></div>
+              </div>
+            </div>
+            <div class="form-row"><label>Editor Font Size</label><input type="number" value="14" min="10" max="24" class="form-input" style="max-width:80px"></div>
+            <button class="btn btn-primary mt-10">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-title">Modal</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

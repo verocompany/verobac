@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إدارة الفواتير - VERO Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .billing-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .billing-stat-card { background: var(--white); border-radius: var(--radius-lg); padding: 20px; text-align: center; box-shadow: var(--shadow-sm); }
+        .subscription-card { background: var(--white); border-radius: var(--radius-xl); padding: 24px; margin-bottom: 24px; border-right: 4px solid var(--gold); }
+        .plan-badge { display: inline-block; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+        .invoice-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--gray-light); }
+        .invoice-item:hover { background: var(--gold-light); border-radius: var(--radius-md); }
+        .status-paid { color: var(--success); }
+        .status-pending { color: var(--warning); }
+        .status-overdue { color: var(--danger); }
+    </style>
+</head>
+<body>
+<div class="page-content">
+    <h3><i class="fas fa-file-invoice-dollar"></i> إدارة الفواتير والاشتراكات</h3>
+    <div class="billing-stats">
+        <div class="billing-stat-card"><div class="deployment-stat-value" id="totalRevenue">0</div><div>إجمالي الإيرادات</div></div>
+        <div class="billing-stat-card"><div class="deployment-stat-value" id="activeSubscriptions">0</div><div>اشتراكات نشطة</div></div>
+        <div class="billing-stat-card"><div class="deployment-stat-value" id="pendingInvoices">0</div><div>فواتير معلقة</div></div>
+        <div class="billing-stat-card"><div class="deployment-stat-value" id="monthlyRecurring">0</div><div>الإيرادات الشهرية</div></div>
+    </div>
+    <div class="card"><h4><i class="fas fa-user"></i> اختار العميل</h4><select id="clientSelect" class="form-control" onchange="loadClientBilling()"><option value="">-- اختر عميل --</option></select></div>
+    <div id="billingDetails"></div>
+</div>
+
+<script>
+    let clients = [];
+    async function loadClients() { const r=await window.api.getClients(); clients=r.success?r.clients||[]:[]; document.getElementById('clientSelect').innerHTML='<option value="">-- اختر عميل --</option>'+clients.map(c=>`<option value="${c.id}">${c.name} (${c.plan})</option>`).join(''); updateStats(); }
+    function updateStats() { const t=clients.reduce((s,c)=>s+c.amount,0), a=clients.filter(c=>c.status==='active').length, m=clients.filter(c=>c.status==='active').reduce((s,c)=>s+c.amount,0); document.getElementById('totalRevenue').innerHTML=t.toLocaleString()+' AED'; document.getElementById('activeSubscriptions').innerHTML=a; document.getElementById('monthlyRecurring').innerHTML=m.toLocaleString()+' AED'; }
+    async function loadClientBilling() { const id=document.getElementById('clientSelect').value; if(!id){document.getElementById('billingDetails').innerHTML='';return;} const c=clients.find(c=>c.id===id); const inv=await window.api.getInvoices?await window.api.getInvoices(id):[]; document.getElementById('billingDetails').innerHTML=`<div class="subscription-card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;"><div><h4><i class="fas fa-tag"></i> ${c.name}</h4><p style="color:var(--gray);">${c.email}</p></div><div><span class="plan-badge" style="background:${getPlanColor(c.plan)}20;color:${getPlanColor(c.plan)};">${getPlanName(c.plan)}</span><span class="badge-${c.status==='active'?'success':'danger'}" style="margin-right:8px;">${c.status==='active'?'✅ نشط':'⛔ موقوف'}</span></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:20px;"><div><small style="color:var(--gray);">المبلغ الشهري</small><div style="font-size:24px;font-weight:800;">${c.amount} AED</div></div><div><small style="color:var(--gray);">تاريخ الانتهاء</small><div>${c.subscriptionEnd||'-'}</div></div><div><small style="color:var(--gray);">الأيام المتبقية</small><div>${getDaysRemaining(c.subscriptionEnd)} يوم</div></div></div><div style="display:flex;gap:12px;margin-top:20px;"><button class="btn-primary" onclick="renewSubscription('${c.id}')"><i class="fas fa-sync-alt"></i> تجديد</button><button class="btn-danger" onclick="suspendSubscription('${c.id}')"><i class="fas fa-pause"></i> إيقاف</button><button class="btn-secondary" onclick="upgradePlan('${c.id}')"><i class="fas fa-arrow-up"></i> ترقية</button></div></div><div class="card"><h4><i class="fas fa-file-invoice"></i> سجل الفواتير</h4>${inv.length?inv.map(i=>`<div class="invoice-item"><div><strong>${i.id}</strong><br><small>${i.date}</small></div><div>${i.description}</div><div><strong>${i.amount} AED</strong></div><div><span class="status-${i.status}"><i class="fas ${i.status==='paid'?'fa-check-circle':(i.status==='pending'?'fa-clock':'fa-exclamation-triangle')}"></i> ${i.status==='paid'?'مدفوع':i.status==='pending'?'قيد الانتظار':'متأخر'}</span></div><div><button class="btn-secondary" onclick="downloadInvoice('${i.id}')"><i class="fas fa-download"></i></button></div></div>`).join(''):'<div class="empty-state">لا توجد فواتير</div>'}</div>`; }
+    function getPlanColor(p){const c={essential:'#3b82f6',business:'#f59e0b',premium:'#8b5cf6'};return c[p]||'#64748b';}
+    function getPlanName(p){const n={essential:'Essential',business:'Business',premium:'Premium'};return n[p]||p;}
+    function getDaysRemaining(e){if(!e)return 0;const d=Math.ceil((new Date(e)-new Date())/(1000*60*60*24));return d>0?d:0;}
+    async function renewSubscription(id){await window.api.renewSubscription?await window.api.renewSubscription(id):alert('تم التجديد');loadClientBilling();}
+    async function suspendSubscription(id){if(confirm('إيقاف الاشتراك؟')){await window.api.suspendSubscription?await window.api.suspendSubscription(id):alert('تم الإيقاف');loadClientBilling();updateStats();}}
+    async function upgradePlan(id){await window.api.upgradePlan?await window.api.upgradePlan(id):alert('تم الترقية');loadClientBilling();updateStats();}
+    function downloadInvoice(id){alert(`تحميل الفاتورة ${id}`);}
+    loadClients();
+</script>
+</body>
+</html>

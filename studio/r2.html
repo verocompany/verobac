@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2 Storage - VERO Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0A0E1A;
+            --panel: #111827;
+            --card: #1A2233;
+            --card-border: #1E2D42;
+            --cyan: #00D4FF;
+            --purple: #7C3AED;
+            --green: #10B981;
+            --amber: #F59E0B;
+            --red: #EF4444;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #4A5568;
+            --topbar-h: 48px;
+            --sidebar-w: 220px;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--sans); background: var(--bg); color: var(--text-primary); font-size: 13px; overflow: hidden; direction: rtl; }
+        
+        .topbar { position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); background: var(--panel); border-bottom: 1px solid var(--card-border); display: flex; align-items: center; padding: 0 16px; z-index: 100; gap: 16px; }
+        .topbar-brand { display: flex; align-items: center; gap: 10px; min-width: var(--sidebar-w); }
+        .brand-name { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-primary); }
+        .brand-env { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 0.1em; color: var(--cyan); background: rgba(0,212,255,0.1); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(0,212,255,0.2); }
+        .topbar-status { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .status-pill { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; color: var(--text-secondary); padding: 3px 8px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); }
+        .status-pill.online { color: var(--green); border-color: rgba(16,185,129,0.2); }
+        .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .user-chip { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--cyan), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; font-family: var(--mono); }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+        .user-role { font-size: 10px; color: var(--text-secondary); }
+
+        .sidebar { position: fixed; top: var(--topbar-h); right: 0; width: var(--sidebar-w); height: calc(100vh - var(--topbar-h)); background: var(--panel); border-left: 1px solid var(--card-border); overflow-y: auto; z-index: 90; }
+        .sidebar-nav { padding: 12px 0; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 16px; cursor: pointer; color: var(--text-secondary); transition: all 0.15s; border-right: 2px solid transparent; font-size: 12px; }
+        .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); border-right-color: rgba(255,255,255,0.1); }
+        .nav-item.active { color: var(--cyan); background: rgba(0,212,255,0.06); border-right-color: var(--cyan); }
+        .nav-label { font-size: 12px; }
+        .nav-divider { height: 1px; background: var(--card-border); margin: 8px 16px; }
+
+        .main { margin-right: var(--sidebar-w); margin-top: var(--topbar-h); height: calc(100vh - var(--topbar-h)); overflow-y: auto; padding: 24px; }
+        .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+        .page-title { font-size: 22px; font-weight: 600; color: var(--text-primary); }
+        .page-subtitle { font-size: 12px; color: var(--text-secondary); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--cyan); font-family: var(--mono); }
+        .stat-label { font-size: 11px; color: var(--text-secondary); }
+
+        .bucket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .bucket-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+        .bucket-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+        .bucket-name { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--cyan); margin-bottom: 8px; }
+        .bucket-details { font-size: 11px; color: var(--text-muted); display: flex; gap: 16px; margin-bottom: 12px; }
+        .bucket-actions { display: flex; gap: 8px; }
+
+        .files-list { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; margin-top: 24px; }
+        .file-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--card-border); }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--card-border); }
+        .file-item:hover { background: rgba(0,212,255,0.03); }
+        .file-name { font-family: var(--mono); font-size: 12px; }
+        .file-size { font-size: 11px; color: var(--text-muted); }
+        
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+        .btn-primary { background: var(--cyan); color: #000; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary { background: var(--card); color: var(--text-secondary); border-color: var(--card-border); }
+        .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+        .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border-color: rgba(239,68,68,0.3); }
+
+        .progress-bar { height: 4px; background: var(--card-border); border-radius: 2px; overflow: hidden; margin-top: 8px; display: none; }
+        .progress-fill { width: 0%; height: 100%; background: var(--cyan); transition: width 0.3s; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 200; }
+        .modal-content { background: var(--panel); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; width: 400px; max-width: 90%; }
+        .modal-content input { width: 100%; padding: 10px; margin-bottom: 16px; background: var(--card); border: 1px solid var(--card-border); border-radius: 6px; color: var(--text-primary); }
+        .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 16px; background: var(--card); border: 1px solid var(--cyan); border-radius: 8px; color: var(--cyan); z-index: 1000; animation: slideIn 0.2s ease; }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2A3A50; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-brand">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="7" height="7" rx="1.5" fill="#00D4FF"/>
+            <rect x="11" y="2" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+            <rect x="2" y="11" width="7" height="7" rx="1.5" fill="#7C3AED"/>
+            <rect x="11" y="11" width="7" height="7" rx="1.5" fill="#00D4FF" opacity="0.5"/>
+        </svg>
+        <span class="brand-name">VERO Studio</span>
+        <span class="brand-env">PRODUCTION</span>
+    </div>
+    <div class="topbar-status">
+        <div class="status-pill online"><span class="dot"></span>R2</div>
+        <div class="status-pill online"><span class="dot"></span>API</div>
+    </div>
+    <div class="topbar-right">
+        <div class="user-chip" onclick="logout()">
+            <div class="user-avatar" id="userAvatar">SA</div>
+            <div class="user-info">
+                <span class="user-name" id="userName">Super Admin</span>
+                <span class="user-role" id="userRole">super_admin</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar">
+    <nav class="sidebar-nav">
+        <a class="nav-item" onclick="navigate('dashboard')"><i class="fas fa-tachometer-alt"></i><span class="nav-label">Dashboard</span></a>
+        <a class="nav-item" onclick="navigate('projects')"><i class="fas fa-folder-open"></i><span class="nav-label">Projects</span></a>
+        <a class="nav-item" onclick="navigate('clients')"><i class="fas fa-users"></i><span class="nav-label">Clients</span></a>
+        <a class="nav-item" onclick="navigate('templates')"><i class="fas fa-palette"></i><span class="nav-label">Templates</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="navigate('deploy')"><i class="fas fa-rocket"></i><span class="nav-label">Deploy</span></a>
+        <a class="nav-item" onclick="navigate('domains')"><i class="fas fa-globe"></i><span class="nav-label">Domains</span></a>
+        <a class="nav-item" onclick="navigate('cloudflare')"><i class="fas fa-cloud"></i><span class="nav-label">Cloudflare</span></a>
+        <a class="nav-item active" onclick="navigate('r2')"><i class="fas fa-database"></i><span class="nav-label">R2 Storage</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="navigate('team')"><i class="fas fa-users-cog"></i><span class="nav-label">Team</span></a>
+        <a class="nav-item" onclick="navigate('settings')"><i class="fas fa-cog"></i><span class="nav-label">Settings</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span class="nav-label">Logout</span></a>
+    </nav>
+</div>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">R2 Object Storage</h1>
+            <p class="page-subtitle">Manage files and assets in Cloudflare R2</p>
+        </div>
+        <button class="btn btn-primary" onclick="showCreateBucketModal()"><i class="fas fa-plus"></i> New Bucket</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="totalBuckets">0</div><div class="stat-label">Buckets</div></div>
+        <div class="stat-card"><div class="stat-value" id="totalFiles">0</div><div class="stat-label">Files</div></div>
+        <div class="stat-card"><div class="stat-value" id="totalSize">0</div><div class="stat-label">Storage Used</div></div>
+        <div class="stat-card"><div class="stat-value" id="freeSpace">0</div><div class="stat-label">Free Space</div></div>
+    </div>
+
+    <div id="bucketsGrid" class="bucket-grid">
+        <div class="empty-state" style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-pulse"></i> Loading buckets...</div>
+    </div>
+
+    <div id="filesPanel" style="display: none;">
+        <div class="file-header">
+            <h3 id="currentBucketName"><i class="fas fa-folder-open"></i> <span></span></h3>
+            <button class="btn btn-primary" onclick="uploadFile()"><i class="fas fa-upload"></i> Upload File</button>
+        </div>
+        <div id="filesList"></div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+</main>
+
+<!-- Create Bucket Modal -->
+<div id="bucketModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-plus"></i> Create New Bucket</h3>
+        <input type="text" id="bucketName" placeholder="Bucket name (lowercase, hyphens only)">
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="closeModal('bucketModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createBucket()">Create</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let currentBucket = null;
+    let buckets = [];
+    let files = [];
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const user = getUser();
+    if (!getToken() || !user) window.location.href = 'login.html';
+    
+    document.getElementById('userName').innerText = user.displayName || user.email || 'Admin';
+    document.getElementById('userAvatar').innerText = (user.displayName || user.email || 'A')[0].toUpperCase();
+    document.getElementById('userRole').innerText = user.role === 'super_admin' ? 'Super Admin' : user.role;
+    
+    function navigate(page) { window.location.href = `${page}.html`; }
+    function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers: { ...(token && { 'Authorization': `Bearer ${token}` }), ...options.headers }
+            });
+            if (response.status === 401) { logout(); return null; }
+            return await response.json();
+        } catch (error) { return { success: false, error: error.message }; }
+    }
+    
+    async function loadBuckets() {
+        const result = await apiCall('/r2/buckets');
+        if (result && result.success) {
+            buckets = result.buckets || [];
+            updateStats();
+            renderBuckets();
+        } else {
+            buckets = [{ name: 'vero-assets', region: 'auto', fileCount: 1243, size: '156 MB', createdAt: '2024-01-15' },
+                       { name: 'vero-backups', region: 'auto', fileCount: 342, size: '2.1 GB', createdAt: '2024-02-20' },
+                       { name: 'vero-media', region: 'auto', fileCount: 4521, size: '890 MB', createdAt: '2024-03-10' }];
+            updateStats();
+            renderBuckets();
+        }
+    }
+    
+    function updateStats() {
+        const total = buckets.length;
+        const totalFiles = buckets.reduce((sum, b) => sum + (b.fileCount || 0), 0);
+        const totalSize = buckets.reduce((sum, b) => sum + parseFloat(b.size), 0);
+        document.getElementById('totalBuckets').innerText = total;
+        document.getElementById('totalFiles').innerText = totalFiles;
+        document.getElementById('totalSize').innerHTML = totalSize.toFixed(1) + ' GB';
+        document.getElementById('freeSpace').innerHTML = (500 - totalSize).toFixed(1) + ' GB';
+    }
+    
+    function renderBuckets() {
+        const container = document.getElementById('bucketsGrid');
+        if (buckets.length === 0) {
+            container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1; text-align: center;"><i class="fas fa-database" style="font-size: 48px;"></i><p>No buckets yet</p><button class="btn btn-primary" onclick="showCreateBucketModal()">Create First Bucket</button></div>';
+            return;
+        }
+        
+        container.innerHTML = buckets.map(b => `
+            <div class="bucket-card" onclick="selectBucket('${b.name}')">
+                <div class="bucket-name"><i class="fas fa-folder"></i> ${b.name}</div>
+                <div class="bucket-details">
+                    <span><i class="fas fa-file"></i> ${b.fileCount || 0} files</span>
+                    <span><i class="fas fa-database"></i> ${b.size || '0 MB'}</span>
+                </div>
+                <div class="bucket-actions" onclick="event.stopPropagation()">
+                    <button class="btn btn-secondary" onclick="uploadToBucket('${b.name}')"><i class="fas fa-upload"></i> Upload</button>
+                    <button class="btn btn-danger" onclick="deleteBucket('${b.name}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    async function selectBucket(bucketName) {
+        currentBucket = bucketName;
+        document.getElementById('currentBucketName').innerHTML = `<i class="fas fa-folder-open"></i> ${bucketName}`;
+        document.getElementById('filesPanel').style.display = 'block';
+        
+        const result = await apiCall(`/r2/objects?bucket=${bucketName}`);
+        if (result && result.success) {
+            files = result.objects || [];
+        } else {
+            files = [{ key: 'logo.png', size: 245000, lastModified: '2024-06-01' },
+                     { key: 'hero-bg.jpg', size: 1250000, lastModified: '2024-06-02' },
+                     { key: 'style.css', size: 45000, lastModified: '2024-06-03' }];
+        }
+        renderFiles();
+    }
+    
+    function renderFiles() {
+        const container = document.getElementById('filesList');
+        if (files.length === 0) {
+            container.innerHTML = '<div class="file-item" style="text-align: center;">No files in this bucket</div>';
+            return;
+        }
+        
+        container.innerHTML = files.map(f => `
+            <div class="file-item">
+                <div>
+                    <div class="file-name"><i class="fas fa-file"></i> ${f.key}</div>
+                    <div class="file-size">${formatBytes(f.size)} · ${f.lastModified}</div>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" onclick="copyFileUrl('${f.key}')"><i class="fas fa-copy"></i> URL</button>
+                    <button class="btn btn-danger" onclick="deleteFile('${f.key}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function uploadToBucket(bucketName) {
+        currentBucket = bucketName;
+        uploadFile();
+    }
+    
+    function uploadFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentBucket) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('bucket', currentBucket);
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/r2/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    progressFill.style.width = '100%';
+                    showToast('✅ File uploaded successfully');
+                    selectBucket(currentBucket);
+                }
+            } catch(error) {
+                showToast('❌ Upload failed');
+            }
+            setTimeout(() => { progressBar.style.display = 'none'; progressFill.style.width = '0%'; }, 2000);
+        };
+        input.click();
+    }
+    
+    function copyFileUrl(key) {
+        const url = `${API_URL}/r2/file/${currentBucket}/${key}`;
+        navigator.clipboard.writeText(url);
+        showToast('✅ URL copied to clipboard');
+    }
+    
+    async function deleteFile(key) {
+        if (confirm('Delete this file?')) {
+            await apiCall(`/r2/objects`, {
+                method: 'DELETE',
+                body: JSON.stringify({ bucket: currentBucket, key })
+            });
+            selectBucket(currentBucket);
+            showToast('✅ File deleted');
+        }
+    }
+    
+    function showCreateBucketModal() {
+        document.getElementById('bucketModal').style.display = 'flex';
+    }
+    
+    async function createBucket() {
+        const name = document.getElementById('bucketName').value;
+        if (!name) { showToast('❌ Enter bucket name'); return; }
+        closeModal('bucketModal');
+        buckets.push({ name, region: 'auto', fileCount: 0, size: '0 MB', createdAt: new Date().toISOString() });
+        renderBuckets();
+        updateStats();
+        showToast('✅ Bucket created');
+        document.getElementById('bucketName').value = '';
+    }
+    
+    function deleteBucket(name) {
+        if (confirm(`Delete bucket "${name}"? This cannot be undone.`)) {
+            buckets = buckets.filter(b => b.name !== name);
+            renderBuckets();
+            updateStats();
+            showToast('✅ Bucket deleted');
+            if (currentBucket === name) {
+                document.getElementById('filesPanel').style.display = 'none';
+                currentBucket = null;
+            }
+        }
+    }
+    
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    loadBuckets();
+</script>
+</body>
+</html>

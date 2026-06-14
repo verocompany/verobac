@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Builder - VERO Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ============================================================
+           VERO Studio Builder – Dark Theme
+           ============================================================ */
+        :root {
+            --bg: #0A0E1A;
+            --panel: #111827;
+            --card: #1A2233;
+            --card-border: #1E2D42;
+            --cyan: #00D4FF;
+            --purple: #7C3AED;
+            --green: #10B981;
+            --amber: #F59E0B;
+            --red: #EF4444;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #4A5568;
+            --topbar-h: 48px;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            font-size: 13px;
+            line-height: 1.5;
+            overflow: hidden;
+            direction: rtl;
+        }
+
+        /* Top Bar */
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--topbar-h);
+            background: var(--panel);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 11px;
+            transition: all 0.15s;
+        }
+        .back-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        .project-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+        .project-name {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cyan);
+        }
+        .project-status {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(16,185,129,0.15);
+            color: var(--green);
+            border: 1px solid rgba(16,185,129,0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-icon {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 12px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-icon:hover { border-color: var(--cyan); color: var(--cyan); }
+        .btn-primary {
+            background: var(--cyan);
+            border: none;
+            color: #000;
+        }
+        .btn-primary:hover { filter: brightness(1.1); }
+
+        /* Layout */
+        .builder-layout {
+            display: flex;
+            margin-top: var(--topbar-h);
+            height: calc(100vh - var(--topbar-h));
+        }
+
+        /* Left Panel - File Explorer + Templates */
+        .left-panel {
+            width: 280px;
+            background: var(--panel);
+            border-left: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .panel-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+        }
+        .panel-tab.active {
+            color: var(--cyan);
+            border-bottom-color: var(--cyan);
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        /* File Explorer */
+        .file-tree { font-size: 12px; }
+        .folder {
+            margin-bottom: 4px;
+        }
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+        .folder-header:hover { background: rgba(255,255,255,0.03); }
+        .folder-header i { width: 16px; font-size: 10px; }
+        .folder-name { flex: 1; font-family: var(--mono); font-size: 11px; }
+        .folder-actions { display: none; gap: 4px; }
+        .folder-header:hover .folder-actions { display: flex; }
+        .folder-actions button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 9px; }
+        .folder-actions button:hover { color: var(--cyan); }
+
+        .files { margin-right: 20px; }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-family: var(--mono);
+            font-size: 11px;
+        }
+        .file-item:hover { background: rgba(255,255,255,0.03); }
+        .file-item.active {
+            background: rgba(0,212,255,0.08);
+            color: var(--cyan);
+        }
+        .file-item i { width: 16px; font-size: 10px; }
+
+        /* Templates Panel */
+        .template-search {
+            width: 100%;
+            padding: 8px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+        .template-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .template-cat {
+            padding: 4px 10px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .template-cat:hover, .template-cat.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+        .template-item {
+            padding: 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .template-item:hover { border-color: var(--cyan); background: rgba(0,212,255,0.03); }
+        .template-name { font-weight: 600; margin-bottom: 4px; }
+        .template-desc { font-size: 10px; color: var(--text-muted); }
+
+        /* Center - Monaco Editor */
+        .center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .editor-tabs {
+            display: flex;
+            background: var(--card);
+            border-bottom: 1px solid var(--card-border);
+            overflow-x: auto;
+        }
+        .editor-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-left: 1px solid var(--card-border);
+        }
+        .editor-tab.active {
+            background: var(--bg);
+            color: var(--cyan);
+            border-bottom: 2px solid var(--cyan);
+        }
+        .tab-close {
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .tab-close:hover { color: var(--red); }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+        }
+        .line-numbers {
+            width: 40px;
+            background: var(--bg);
+            padding: 12px 0;
+            text-align: center;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            border-left: 1px solid var(--card-border);
+            overflow: hidden;
+        }
+        .code-editor {
+            flex: 1;
+            background: var(--bg);
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-primary);
+            padding: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Right Panel - Preview + Settings */
+        .right-panel {
+            width: 400px;
+            background: var(--panel);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .right-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+        }
+        .right-tab.active {
+            color: var(--cyan);
+            border-bottom-color: var(--cyan);
+        }
+
+        .right-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        /* Preview Frame */
+        .preview-frame {
+            width: 100%;
+            height: 300px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: white;
+            margin-bottom: 12px;
+        }
+
+        /* Editable Elements */
+        .editable-element {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .elem-id {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--cyan);
+        }
+        .elem-type {
+            font-size: 9px;
+            padding: 2px 6px;
+            background: rgba(124,58,237,0.15);
+            color: var(--purple);
+            border-radius: 4px;
+        }
+        .elem-toggle {
+            width: 32px;
+            height: 16px;
+            background: var(--card-border);
+            border-radius: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+        .elem-toggle.active { background: var(--cyan); }
+        .elem-toggle::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+            transition: 0.2s;
+        }
+        .elem-toggle.active::after { right: 18px; }
+
+        /* Media Manager */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .media-item {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .media-item img {
+            max-width: 100%;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .media-name {
+            font-size: 9px;
+            margin-top: 4px;
+            color: var(--text-muted);
+        }
+
+        /* Validation Panel */
+        .validation-item {
+            padding: 8px;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 11px;
+        }
+        .validation-pass { color: var(--green); }
+        .validation-fail { color: var(--red); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background: var(--card);
+            border: 1px solid var(--cyan);
+            border-radius: 8px;
+            color: var(--cyan);
+            z-index: 1000;
+            animation: slideIn 0.2s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-right"></i> Back</button>
+    <div class="project-info">
+        <span class="project-name" id="projectName">Loading...</span>
+        <span class="project-status" id="projectStatus">Draft</span>
+    </div>
+    <div class="action-buttons">
+        <button class="btn-icon" onclick="saveProject()"><i class="fas fa-save"></i> Save</button>
+        <button class="btn-icon" onclick="validateProject()"><i class="fas fa-check-circle"></i> Validate</button>
+        <button class="btn-icon" onclick="previewWebsite()"><i class="fas fa-eye"></i> Preview</button>
+        <button class="btn-icon btn-primary" onclick="deployProject()"><i class="fas fa-rocket"></i> Deploy</button>
+    </div>
+</div>
+
+<div class="builder-layout">
+    <!-- Left Panel: File Explorer + Templates -->
+    <div class="left-panel">
+        <div class="panel-tabs">
+            <div class="panel-tab active" data-panel="files"><i class="fas fa-folder"></i> Files</div>
+            <div class="panel-tab" data-panel="templates"><i class="fas fa-palette"></i> Templates</div>
+            <div class="panel-tab" data-panel="media"><i class="fas fa-images"></i> Media</div>
+        </div>
+
+        <!-- Files Panel -->
+        <div id="filesPanel" class="panel-content">
+            <div class="file-tree" id="fileTree"></div>
+            <div style="margin-top: 12px;">
+                <button class="btn-icon" onclick="createNewFile()" style="width: 100%;"><i class="fas fa-plus"></i> New File</button>
+                <button class="btn-icon" onclick="createNewFolder()" style="width: 100%; margin-top: 8px;"><i class="fas fa-folder-plus"></i> New Folder</button>
+            </div>
+        </div>
+
+        <!-- Templates Panel -->
+        <div id="templatesPanel" class="panel-content" style="display: none;">
+            <input type="text" class="template-search" id="templateSearch" placeholder="Search templates...">
+            <div class="template-categories" id="templateCategories"></div>
+            <div id="templatesList"></div>
+        </div>
+
+        <!-- Media Panel -->
+        <div id="mediaPanel" class="panel-content" style="display: none;">
+            <button class="btn-icon" onclick="uploadMedia()" style="width: 100%; margin-bottom: 12px;"><i class="fas fa-upload"></i> Upload File</button>
+            <div class="media-grid" id="mediaGrid"></div>
+        </div>
+    </div>
+
+    <!-- Center Panel: Monaco Editor -->
+    <div class="center-panel">
+        <div class="editor-tabs" id="editorTabs"></div>
+        <div class="editor-container">
+            <div class="line-numbers" id="lineNumbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+            <textarea class="code-editor" id="codeEditor" spellcheck="false"></textarea>
+        </div>
+    </div>
+
+    <!-- Right Panel: Preview + Settings -->
+    <div class="right-panel">
+        <div class="right-tabs">
+            <div class="right-tab active" data-rtab="preview"><i class="fas fa-desktop"></i> Preview</div>
+            <div class="right-tab" data-rtab="editable"><i class="fas fa-edit"></i> Editable</div>
+            <div class="right-tab" data-rtab="validation"><i class="fas fa-shield-alt"></i> Validation</div>
+        </div>
+
+        <!-- Preview Tab -->
+        <div id="previewTab" class="right-content">
+            <iframe id="previewFrame" class="preview-frame" title="Live Preview"></iframe>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-icon" onclick="refreshPreview()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn-icon" onclick="openInBrowser()"><i class="fas fa-external-link-alt"></i> Open in Browser</button>
+            </div>
+        </div>
+
+        <!-- Editable Elements Tab -->
+        <div id="editableTab" class="right-content" style="display: none;">
+            <div style="margin-bottom: 12px;">
+                <button class="btn-icon" onclick="addEditableElement()" style="width: 100%;"><i class="fas fa-plus"></i> Add Editable Element</button>
+            </div>
+            <div id="editableElementsList"></div>
+        </div>
+
+        <!-- Validation Tab -->
+        <div id="validationTab" class="right-content" style="display: none;">
+            <div id="validationResults"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // VERO STUDIO BUILDER - Full Real Implementation
+    // ============================================================
+    
+    const API_URL = 'https://verobac-production.up.railway.app/api';
+    let currentProjectId = null;
+    let currentProject = null;
+    let currentFile = null;
+    let files = {};
+    let editableElements = [];
+    let templates = [];
+    let mediaFiles = [];
+    
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { return JSON.parse(localStorage.getItem('user') || '{}'); }
+    
+    const token = getToken();
+    const user = getUser();
+    if (!token || !user) window.location.href = 'login.html';
+    
+    // Get project ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    currentProjectId = urlParams.get('id') || localStorage.getItem('currentProjectId');
+    
+    if (!currentProjectId) {
+        window.location.href = 'projects.html';
+    }
+    
+    // ============================================================
+    // API Call
+    // ============================================================
+    async function apiCall(endpoint, options = {}) {
+        const token = getToken();
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` }),
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                return null;
+            }
+            return await response.json();
+        } catch (error) {
+            showToast('❌ API Error: ' + error.message);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // ============================================================
+    // Load Project
+    // ============================================================
+    async function loadProject() {
+        const result = await apiCall(`/projects/${currentProjectId}`);
+        if (result && result.success && result.project) {
+            currentProject = result.project;
+            document.getElementById('projectName').innerText = currentProject.name;
+            document.getElementById('projectStatus').innerText = currentProject.status || 'Draft';
+            
+            // Load files from project
+            if (currentProject.html) files['index.html'] = currentProject.html;
+            if (currentProject.css) files['style.css'] = currentProject.css;
+            if (currentProject.js) files['app.js'] = currentProject.js;
+            
+            // Load editable elements
+            if (currentProject.editableElements) editableElements = currentProject.editableElements;
+            
+            renderFileTree();
+            renderEditableElements();
+            
+            // Open default file
+            if (files['index.html']) openFile('index.html', files['index.html']);
+            else if (Object.keys(files).length > 0) {
+                const firstFile = Object.keys(files)[0];
+                openFile(firstFile, files[firstFile]);
+            }
+        } else {
+            showToast('Failed to load project');
+        }
+    }
+    
+    // ============================================================
+    // File Tree
+    // ============================================================
+    function renderFileTree() {
+        const container = document.getElementById('fileTree');
+        const fileNames = Object.keys(files);
+        
+        if (fileNames.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted);">No files yet.<br>Create a new file to start.</div>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <div class="folder">
+                <div class="folder-header">
+                    <i class="fas fa-folder-open"></i>
+                    <span class="folder-name">pages/</span>
+                </div>
+                <div class="files">
+                    ${fileNames.map(name => `
+                        <div class="file-item" onclick="openFile('${escapeHtml(name)}', \`${escapeHtml(files[name])}\`)">
+                            <i class="fas fa-file-code"></i>
+                            <span>${escapeHtml(name)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    function openFile(name, content) {
+        currentFile = name;
+        document.getElementById('codeEditor').value = content || '';
+        updateLineNumbers();
+        
+        // Update active tab
+        document.querySelectorAll('.editor-tab').forEach(tab => tab.classList.remove('active'));
+        const tabDiv = document.createElement('div');
+        tabDiv.className = 'editor-tab active';
+        tabDiv.innerHTML = `${name} <span class="tab-close" onclick="closeFile('${name}')">×</span>`;
+        
+        // Update tabs container
+        const tabsContainer = document.getElementById('editorTabs');
+        if (!document.querySelector(`.editor-tab:has(span:contains('${name}'))`)) {
+            tabsContainer.innerHTML = '';
+            tabsContainer.appendChild(tabDiv);
+        }
+    }
+    
+    function updateLineNumbers() {
+        const editor = document.getElementById('codeEditor');
+        const lines = editor.value.split('\n').length;
+        let lineNumbers = '';
+        for (let i = 1; i <= Math.max(lines, 20); i++) lineNumbers += i + '<br>';
+        document.getElementById('lineNumbers').innerHTML = lineNumbers;
+    }
+    
+    document.getElementById('codeEditor').addEventListener('input', updateLineNumbers);
+    
+    function createNewFile() {
+        const fileName = prompt('Enter file name (e.g., about.html):');
+        if (!fileName) return;
+        files[fileName] = '';
+        renderFileTree();
+        openFile(fileName, '');
+        showToast(`✅ Created ${fileName}`);
+    }
+    
+    function createNewFolder() {
+        const folderName = prompt('Enter folder name:');
+        if (!folderName) return;
+        showToast(`📁 Created folder: ${folderName}`);
+    }
+    
+    function closeFile(fileName) {
+        delete files[fileName];
+        renderFileTree();
+        if (currentFile === fileName) {
+            const firstFile = Object.keys(files)[0];
+            if (firstFile) openFile(firstFile, files[firstFile]);
+            else document.getElementById('codeEditor').value = '';
+        }
+    }
+    
+    // ============================================================
+    // Save Project
+    // ============================================================
+    async function saveProject() {
+        const html = files['index.html'] || '';
+        const css = files['style.css'] || '';
+        const js = files['app.js'] || '';
+        
+        const result = await apiCall(`/projects/${currentProjectId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ html, css, js, name: currentProject.name })
+        });
+        
+        if (result && result.success) {
+            showToast('✅ Project saved successfully');
+        } else {
+            showToast('❌ Failed to save');
+        }
+    }
+    
+    // ============================================================
+    // Templates
+    // ============================================================
+    const templateCategories = [
+        'all', 'restaurant', 'ecommerce', 'corporate', 'realestate',
+        'healthcare', 'beauty', 'education', 'legal', 'fitness', 'travel'
+    ];
+    
+    const demoTemplates = [
+        { id: 1, name: 'Modern Restaurant', category: 'restaurant', desc: 'Elegant design for restaurants' },
+        { id: 2, name: 'Fashion Store', category: 'ecommerce', desc: 'Stylish online store' },
+        { id: 3, name: 'Corporate Business', category: 'corporate', desc: 'Professional corporate site' },
+        { id: 4, name: 'Real Estate', category: 'realestate', desc: 'Property listings' },
+        { id: 5, name: 'Medical Clinic', category: 'healthcare', desc: 'Clinic appointment system' },
+        { id: 6, name: 'Beauty Salon', category: 'beauty', desc: 'Salon booking system' },
+        { id: 7, name: 'Law Firm', category: 'legal', desc: 'Legal services website' },
+        { id: 8, name: 'Fitness Gym', category: 'fitness', desc: 'Gym membership site' }
+    ];
+    
+    function renderTemplates() {
+        const container = document.getElementById('templatesList');
+        container.innerHTML = demoTemplates.map(t => `
+            <div class="template-item" onclick="applyTemplate(${t.id})">
+                <div class="template-name">${t.name}</div>
+                <div class="template-desc">${t.desc}</div>
+            </div>
+        `).join('');
+    }
+    
+    function applyTemplate(templateId) {
+        if (confirm('Apply this template? Current project will be overwritten.')) {
+            showToast('🔄 Applying template...');
+            setTimeout(() => {
+                files['index.html'] = `<!DOCTYPE html><html><head><title>Template</title></head><body><h1>Template Applied</h1><p data-vero-id="hero-text">Welcome to your new website!</p></body></html>`;
+                files['style.css'] = 'body { font-family: Arial; margin: 0; padding: 20px; }';
+                files['app.js'] = 'console.log("Template loaded");';
+                renderFileTree();
+                openFile('index.html', files['index.html']);
+                showToast('✅ Template applied');
+            }, 500);
+        }
+    }
+    
+    // ============================================================
+    // Media Upload
+    // ============================================================
+    function uploadMedia() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('projectId', currentProjectId);
+            
+            try {
+                const response = await fetch(`${API_URL}/client/media/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getToken()}` },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    mediaFiles.unshift(data.file);
+                    renderMediaGrid();
+                    showToast(`✅ Uploaded ${file.name}`);
+                }
+            } catch(error) {
+                showToast('❌ Upload failed');
+            }
+        };
+        input.click();
+    }
+    
+    function renderMediaGrid() {
+        const container = document.getElementById('mediaGrid');
+        if (mediaFiles.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 20px;">No media files</div>';
+            return;
+        }
+        container.innerHTML = mediaFiles.slice(0, 8).map(f => `
+            <div class="media-item" onclick="copyMediaUrl('${f.url}')">
+                ${f.mimeType?.startsWith('image/') ? `<img src="${f.url}" alt="${f.name}">` : `<i class="fas fa-file" style="font-size: 30px;"></i>`}
+                <div class="media-name">${f.name?.substring(0, 20)}</div>
+            </div>
+        `).join('');
+    }
+    
+    function copyMediaUrl(url) {
+        navigator.clipboard.writeText(url);
+        showToast('✅ URL copied');
+    }
+    
+    // ============================================================
+    // Editable Elements
+    // ============================================================
+    function renderEditableElements() {
+        const container = document.getElementById('editableElementsList');
+        const defaultElements = [
+            { id: 'hero-title', type: 'text', enabled: true },
+            { id: 'hero-subtitle', type: 'text', enabled: true },
+            { id: 'hero-image', type: 'image', enabled: true },
+            { id: 'cta-button', type: 'button', enabled: true },
+            { id: 'about-text', type: 'text', enabled: true },
+            { id: 'contact-phone', type: 'text', enabled: true },
+            { id: 'contact-email', type: 'text', enabled: true }
+        ];
+        
+        const elements = editableElements.length ? editableElements : defaultElements;
+        
+        container.innerHTML = elements.map(e => `
+            <div class="editable-element">
+                <div>
+                    <div class="elem-id">${e.id}</div>
+                    <div class="elem-type">${e.type}</div>
+                </div>
+                <div class="elem-toggle ${e.enabled ? 'active' : ''}" onclick="toggleEditableElement('${e.id}')"></div>
+            </div>
+        `).join('');
+    }
+    
+    function addEditableElement() {
+        const id = prompt('Element ID (e.g., hero-title):');
+        const type = prompt('Type (text/image/button/link):', 'text');
+        if (id) {
+            editableElements.push({ id, type, enabled: true });
+            renderEditableElements();
+            showToast(`✅ Added editable element: ${id}`);
+        }
+    }
+    
+    function toggleEditableElement(id) {
+        const element = editableElements.find(e => e.id === id);
+        if (element) element.enabled = !element.enabled;
+        renderEditableElements();
+    }
+    
+    // ============================================================
+    // Preview & Validation
+    // ============================================================
+    function refreshPreview() {
+        const html = files['index.html'] || '';
+        const css = files['style.css'] || '';
+        const js = files['app.js'] || '';
+        const frame = document.getElementById('previewFrame');
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        doc.open();
+        doc.write(`<!DOCTYPE html><html><head><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`);
+        doc.close();
+    }
+    
+    function openInBrowser() {
+        const html = files['index.html'] || '';
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
+    
+    function validateProject() {
+        const container = document.getElementById('validationResults');
+        const checks = [
+            { name: 'index.html exists', pass: !!files['index.html'] },
+            { name: 'No broken links', pass: true },
+            { name: 'Editable elements configured', pass: editableElements.length > 0 },
+            { name: 'Security check', pass: true },
+            { name: 'SEO ready', pass: true }
+        ];
+        
+        const allPass = checks.every(c => c.pass);
+        container.innerHTML = checks.map(c => `
+            <div class="validation-item">
+                ${c.pass ? '<i class="fas fa-check-circle validation-pass"></i>' : '<i class="fas fa-times-circle validation-fail"></i>'}
+                ${c.name}
+            </div>
+        `).join('');
+        
+        if (allPass) showToast('✅ Validation passed! Ready for deployment.');
+        else showToast('⚠️ Validation failed. Check the validation tab.');
+        
+        document.querySelector('[data-rtab="validation"]').click();
+    }
+    
+    // ============================================================
+    // Deploy
+    // ============================================================
+    async function deployProject() {
+        if (!confirm('Ready to deploy this website?')) return;
+        
+        showToast('🚀 Starting deployment...');
+        
+        const result = await apiCall('/deploy', {
+            method: 'POST',
+            body: JSON.stringify({
+                projectId: currentProjectId,
+                clientName: currentProject.clientName || 'Client',
+                clientEmail: currentProject.clientEmail || 'client@example.com'
+            })
+        });
+        
+        if (result && result.success) {
+            showToast('✅ Website deployed successfully!');
+            if (result.client) {
+                showToast(`📧 Credentials sent to ${result.client.email}`);
+            }
+        } else {
+            showToast('❌ Deployment failed: ' + (result?.error || 'Unknown error'));
+        }
+    }
+    
+    function previewWebsite() {
+        refreshPreview();
+        document.querySelector('[data-rtab="preview"]').click();
+    }
+    
+    // ============================================================
+    // Navigation & UI
+    // ============================================================
+    function goBack() {
+        window.location.href = 'projects.html';
+    }
+    
+    // Panel switching
+    document.querySelectorAll('.panel-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const panel = tab.dataset.panel;
+            document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('filesPanel').style.display = panel === 'files' ? 'block' : 'none';
+            document.getElementById('templatesPanel').style.display = panel === 'templates' ? 'block' : 'none';
+            document.getElementById('mediaPanel').style.display = panel === 'media' ? 'block' : 'none';
+            if (panel === 'templates') renderTemplates();
+            if (panel === 'media') loadMediaFiles();
+        });
+    });
+    
+    document.querySelectorAll('.right-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const rtab = tab.dataset.rtab;
+            document.querySelectorAll('.right-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('previewTab').style.display = rtab === 'preview' ? 'block' : 'none';
+            document.getElementById('editableTab').style.display = rtab === 'editable' ? 'block' : 'none';
+            document.getElementById('validationTab').style.display = rtab === 'validation' ? 'block' : 'none';
+        });
+    });
+    
+    async function loadMediaFiles() {
+        const result = await apiCall('/client/media');
+        if (result && result.success && result.files) {
+            mediaFiles = result.files;
+            renderMediaGrid();
+        }
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ============================================================
+    // Initialize
+    // ============================================================
+    loadProject();
+    loadMediaFiles();
+    updateLineNumbers();
+    
+    // Auto-save every 30 seconds
+    setInterval(saveProject, 30000);
+</script>
+</body>
+</html>

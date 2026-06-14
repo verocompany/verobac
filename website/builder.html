@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>محرر الموقع | VERO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #e7c27a;
+            --secondary: #69451a;
+            --bg: #fffaf6;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+        }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); direction: rtl; }
+        
+        /* Layout */
+        .builder-container { display: flex; height: 100vh; }
+        
+        /* Sidebar - Elements Library */
+        .elements-panel {
+            width: 280px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .element-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .element-item:hover { border-color: var(--primary); background: rgba(231,194,122,0.05); }
+        .element-item i { font-size: 20px; color: var(--primary); }
+        
+        /* Canvas - Preview Area */
+        .canvas {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .site-preview {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 800px;
+            border: none;
+        }
+        
+        /* Properties Panel */
+        .properties-panel {
+            width: 320px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .property-group { margin-bottom: 20px; }
+        .property-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary); }
+        .property-group input, .property-group select, .property-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .language-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .lang-tab { padding: 8px 16px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .lang-tab.active { border-bottom-color: var(--primary); color: var(--primary); }
+        
+        /* Top Bar */
+        .top-bar {
+            background: var(--card-bg);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #d4a95c);
+            color: var(--secondary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .elements-panel, .properties-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div>
+        <i class="fas fa-paint-brush"></i> محرر الموقع - <span id="siteName">موقعي</span>
+    </div>
+    <div>
+        <button class="btn-primary" onclick="saveSite()"><i class="fas fa-save"></i> حفظ التغييرات</button>
+        <button class="btn-primary" onclick="previewSite()" style="margin-right: 10px;"><i class="fas fa-eye"></i> معاينة</button>
+        <button class="btn-primary" onclick="publishSite()" style="margin-right: 10px; background: var(--secondary); color: white;"><i class="fas fa-globe"></i> نشر</button>
+    </div>
+</div>
+
+<div class="builder-container">
+    <!-- Left: Elements Library -->
+    <div class="elements-panel">
+        <h3 style="margin-bottom: 20px;">📦 الأقسام الجاهزة</h3>
+        
+        <div class="element-item" draggable="true" data-section-type="hero" ondragstart="dragStart(event)">
+            <i class="fas fa-home"></i>
+            <div>
+                <strong>Hero</strong><br>
+                <small>قسم الترحيب الرئيسي</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="about" ondragstart="dragStart(event)">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>About</strong><br>
+                <small>من نحن</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="services" ondragstart="dragStart(event)">
+            <i class="fas fa-cogs"></i>
+            <div>
+                <strong>Services</strong><br>
+                <small>خدماتنا</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="menu" ondragstart="dragStart(event)">
+            <i class="fas fa-utensils"></i>
+            <div>
+                <strong>Menu</strong><br>
+                <small>قائمة الطعام (مطاعم)</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="gallery" ondragstart="dragStart(event)">
+            <i class="fas fa-images"></i>
+            <div>
+                <strong>Gallery</strong><br>
+                <small>معرض الصور</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="testimonials" ondragstart="dragStart(event)">
+            <i class="fas fa-star"></i>
+            <div>
+                <strong>Testimonials</strong><br>
+                <small>آراء العملاء</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="faq" ondragstart="dragStart(event)">
+            <i class="fas fa-question-circle"></i>
+            <div>
+                <strong>FAQ</strong><br>
+                <small>أسئلة شائعة</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="contact" ondragstart="dragStart(event)">
+            <i class="fas fa-envelope"></i>
+            <div>
+                <strong>Contact</strong><br>
+                <small>نموذج تواصل</small>
+            </div>
+        </div>
+        
+        <div class="element-item" draggable="true" data-section-type="products" ondragstart="dragStart(event)">
+            <i class="fas fa-shopping-cart"></i>
+            <div>
+                <strong>Products</strong><br>
+                <small>عرض المنتجات</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Center: Canvas (Live Preview) -->
+    <div class="canvas">
+        <div class="site-preview">
+            <iframe id="previewFrame" class="preview-frame" src="/preview.html"></iframe>
+        </div>
+    </div>
+    
+    <!-- Right: Properties Editor -->
+    <div class="properties-panel" id="propertiesPanel">
+        <div class="language-tabs">
+            <div class="lang-tab active" data-lang="ar" onclick="switchLang('ar')">🇸🇦 عربي</div>
+            <div class="lang-tab" data-lang="en" onclick="switchLang('en')">🇬🇧 English</div>
+        </div>
+        
+        <div id="propertyEditor">
+            <p style="color: var(--text-muted); text-align: center; padding: 40px;">
+                اختر قسماً من اليسار<br>لتعديل محتواه
+            </p>
+        </div>
+        
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <h4>🎨 إعدادات الموقع</h4>
+            <div class="property-group">
+                <label>اللون الأساسي</label>
+                <input type="color" id="primaryColor" value="#e7c27a" onchange="updateGlobalSettings()">
+            </div>
+            <div class="property-group">
+                <label>اللون الثانوي</label>
+                <input type="color" id="secondaryColor" value="#69451a" onchange="updateGlobalSettings()">
+            </div>
+            <div class="property-group">
+                <label>الخط</label>
+                <select id="fontFamily" onchange="updateGlobalSettings()">
+                    <option value="Cairo">Cairo</option>
+                    <option value="Inter">Inter</option>
+                    <option value="Poppins">Poppins</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Site Data (stored in Firebase)
+    let siteData = {
+        id: 'site_123',
+        name: 'مطعم السلام',
+        template: 'restaurant',
+        sections: [],
+        settings: {
+            primaryColor: '#e7c27a',
+            secondaryColor: '#69451a',
+            font: 'Cairo'
+        },
+        currentLang: 'ar'
+    };
+    
+    let selectedSectionId = null;
+    
+    // Load site data from Firebase
+    async function loadSiteData() {
+        const token = localStorage.getItem('token');
+        const siteId = new URLSearchParams(window.location.search).get('site');
+        
+        try {
+            const response = await fetch(`http://localhost:3001/api/data/sites/${siteId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data) {
+                siteData = { ...siteData, ...data };
+                renderProperties();
+            }
+        } catch (error) {
+            console.error('Error loading site:', error);
+        }
+    }
+    
+    // Drag & Drop
+    function dragStart(event) {
+        event.dataTransfer.setData('text/plain', event.target.closest('.element-item').dataset.sectionType);
+        event.dataTransfer.effectAllowed = 'copy';
+    }
+    
+    // Drop on canvas (to add section)
+    document.querySelector('.canvas').addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    
+    document.querySelector('.canvas').addEventListener('drop', (e) => {
+        e.preventDefault();
+        const sectionType = e.dataTransfer.getData('text/plain');
+        addSection(sectionType);
+    });
+    
+    // Add new section
+    function addSection(type) {
+        const newSection = {
+            id: `section_${Date.now()}`,
+            type: type,
+            fields: getDefaultFields(type)
+        };
+        siteData.sections.push(newSection);
+        saveSiteData();
+        refreshPreview();
+    }
+    
+    // Get default fields based on section type
+    function getDefaultFields(type) {
+        const defaults = {
+            'hero': {
+                title_ar: 'مرحباً بكم',
+                title_en: 'Welcome',
+                subtitle_ar: 'أفضل الخدمات',
+                subtitle_en: 'Best Services',
+                image: '/images/hero.jpg',
+                buttonText_ar: 'اطلب الآن',
+                buttonText_en: 'Order Now'
+            },
+            'about': {
+                title_ar: 'من نحن',
+                title_en: 'About Us',
+                description_ar: 'نحن شركة رائدة...',
+                description_en: 'We are a leading company...',
+                image: '/images/about.jpg'
+            },
+            'services': {
+                title_ar: 'خدماتنا',
+                title_en: 'Our Services',
+                items: [
+                    { icon: 'fa-cog', title_ar: 'خدمة 1', title_en: 'Service 1', description_ar: 'وصف', description_en: 'Description' }
+                ]
+            },
+            'menu': {
+                title_ar: 'قائمتنا',
+                title_en: 'Our Menu',
+                items: [
+                    { name_ar: 'طبق 1', name_en: 'Dish 1', price: 50, description_ar: 'وصف', description_en: 'Description' }
+                ]
+            }
+        };
+        return defaults[type] || {};
+    }
+    
+    // Select section to edit
+    function selectSection(sectionId) {
+        selectedSectionId = sectionId;
+        renderProperties();
+    }
+    
+    // Render properties panel for selected section
+    function renderProperties() {
+        const section = siteData.sections.find(s => s.id === selectedSectionId);
+        if (!section) return;
+        
+        let html = `<h3>✏️ تعديل القسم: ${section.type}</h3>`;
+        
+        for (let [key, value] of Object.entries(section.fields)) {
+            if (key.endsWith('_ar') || key.endsWith('_en')) {
+                const baseKey = key.slice(0, -3);
+                const isArabic = key.endsWith('_ar');
+                if ((isArabic && siteData.currentLang === 'ar') || (!isArabic && siteData.currentLang === 'en')) {
+                    html += `
+                        <div class="property-group">
+                            <label>${getFieldLabel(baseKey)}</label>
+                            <input type="text" value="${value}" onchange="updateSectionField('${section.id}', '${key}', this.value)">
+                        </div>
+                    `;
+                }
+            } else if (key === 'image') {
+                html += `
+                    <div class="property-group">
+                        <label>الصورة</label>
+                        <input type="text" value="${value}" onchange="updateSectionField('${section.id}', '${key}', this.value)">
+                        <button class="btn-primary" style="margin-top: 8px; width: 100%;" onclick="openMediaLibrary('${section.id}', '${key}')"><i class="fas fa-images"></i> اختر من المكتبة</button>
+                    </div>
+                `;
+            } else if (key === 'items' && Array.isArray(value)) {
+                html += `<div class="property-group"><label>العناصر</label>`;
+                value.forEach((item, idx) => {
+                    html += `<div style="border: 1px solid var(--border); padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                        <input type="text" placeholder="${siteData.currentLang === 'ar' ? 'الاسم' : 'Name'}" value="${siteData.currentLang === 'ar' ? item.name_ar : item.name_en}" 
+                               onchange="updateRepeaterItem('${section.id}', ${idx}, 'name', this.value)">
+                        ${item.price !== undefined ? `<input type="number" placeholder="السعر" value="${item.price}" onchange="updateRepeaterItem('${section.id}', ${idx}, 'price', this.value)">` : ''}
+                        <textarea placeholder="${siteData.currentLang === 'ar' ? 'الوصف' : 'Description'}" rows="2" 
+                               onchange="updateRepeaterItem('${section.id}', ${idx}, 'description', this.value)">${siteData.currentLang === 'ar' ? item.description_ar : item.description_en}</textarea>
+                        <button onclick="removeRepeaterItem('${section.id}', ${idx})" style="background: none; border: none; color: red; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                });
+                html += `<button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="addRepeaterItem('${section.id}')"><i class="fas fa-plus"></i> إضافة عنصر</button></div>`;
+            }
+        }
+        
+        html += `<div style="margin-top: 20px;"><button class="btn-primary" style="width: 100%; background: #ef4444; color: white;" onclick="deleteSection('${section.id}')"><i class="fas fa-trash"></i> حذف القسم</button></div>`;
+        
+        document.getElementById('propertyEditor').innerHTML = html;
+    }
+    
+    // Update section field
+    function updateSectionField(sectionId, fieldKey, value) {
+        const section = siteData.sections.find(s => s.id === sectionId);
+        if (section) {
+            section.fields[fieldKey] = value;
+            saveSiteData();
+            refreshPreview();
+        }
+    }
+    
+    // Update repeater item
+    function updateRepeaterItem(sectionId, index, field, value) {
+        const section = siteData.sections.find(s => s.id === sectionId);
+        if (section && section.fields.items[index]) {
+            if (siteData.currentLang === 'ar') {
+                section.fields.items[index][`${field}_ar`] = value;
+            } else {
+                section.fields.items[index][`${field}_en`] = value;
+            }
+            saveSiteData();
+            refreshPreview();
+        }
+    }
+    
+    // Add repeater item
+    function addRepeaterItem(sectionId) {
+        const section = siteData.sections.find(s => s.id === sectionId);
+        if (section && section.fields.items) {
+            const newItem = siteData.currentLang === 'ar' 
+                ? { name_ar: 'عنصر جديد', description_ar: '' }
+                : { name_en: 'New Item', description_en: '' };
+            section.fields.items.push(newItem);
+            saveSiteData();
+            renderProperties();
+            refreshPreview();
+        }
+    }
+    
+    // Remove repeater item
+    function removeRepeaterItem(sectionId, index) {
+        const section = siteData.sections.find(s => s.id === sectionId);
+        if (section && section.fields.items) {
+            section.fields.items.splice(index, 1);
+            saveSiteData();
+            renderProperties();
+            refreshPreview();
+        }
+    }
+    
+    // Delete section
+    function deleteSection(sectionId) {
+        if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
+            siteData.sections = siteData.sections.filter(s => s.id !== sectionId);
+            selectedSectionId = null;
+            saveSiteData();
+            renderProperties();
+            refreshPreview();
+        }
+    }
+    
+    // Update global settings
+    function updateGlobalSettings() {
+        siteData.settings.primaryColor = document.getElementById('primaryColor').value;
+        siteData.settings.secondaryColor = document.getElementById('secondaryColor').value;
+        siteData.settings.font = document.getElementById('fontFamily').value;
+        saveSiteData();
+        refreshPreview();
+    }
+    
+    // Switch language
+    function switchLang(lang) {
+        siteData.currentLang = lang;
+        document.querySelectorAll('.lang-tab').forEach(tab => {
+            if (tab.dataset.lang === lang) tab.classList.add('active');
+            else tab.classList.remove('active');
+        });
+        if (selectedSectionId) renderProperties();
+        refreshPreview();
+    }
+    
+    // Save to Firebase
+    async function saveSiteData() {
+        const token = localStorage.getItem('token');
+        try {
+            await fetch('http://localhost:3001/api/builder/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    siteId: siteData.id,
+                    data: siteData
+                })
+            });
+        } catch (error) {
+            console.error('Error saving:', error);
+        }
+    }
+    
+    // Refresh preview iframe
+    function refreshPreview() {
+        const iframe = document.getElementById('previewFrame');
+        if (iframe) {
+            iframe.contentWindow.postMessage({
+                type: 'UPDATE_SITE_DATA',
+                data: siteData
+            }, '*');
+        }
+    }
+    
+    function saveSite() {
+        saveSiteData();
+        alert('✅ تم حفظ التغييرات');
+    }
+    
+    function previewSite() {
+        window.open(`/preview.html?site=${siteData.id}`, '_blank');
+    }
+    
+    function publishSite() {
+        if (confirm('هل أنت متأكد من نشر هذه التغييرات؟')) {
+            saveSiteData();
+            alert('✅ تم نشر الموقع');
+        }
+    }
+    
+    function openMediaLibrary(sectionId, fieldKey) {
+        window.open(`/media-library.html?return=true&section=${sectionId}&field=${fieldKey}`, '_blank', 'width=800,height=600');
+    }
+    
+    // Initialize
+    loadSiteData();
+    
+    // Listen for messages from preview iframe (when clicking on sections)
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'SELECT_SECTION') {
+            selectSection(event.data.sectionId);
+        }
+    });
+</script>
+</body>
+</html>

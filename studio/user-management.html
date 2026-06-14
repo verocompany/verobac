@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إدارة المستخدمين - VERO Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .user-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        
+        .user-card:hover {
+            transform: translateX(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .user-avatar-lg {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--white);
+        }
+        
+        .role-select {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--gray-light);
+            background: var(--white);
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .status-toggle {
+            width: 44px;
+            height: 24px;
+            background: var(--gray-light);
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .status-toggle.active {
+            background: var(--gold);
+        }
+        
+        .status-toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+            transition: all 0.2s;
+        }
+        
+        .status-toggle.active::after {
+            right: 22px;
+        }
+    </style>
+</head>
+<body>
+<div class="page-content">
+    <div class="flex-between" style="margin-bottom: 24px;">
+        <h3><i class="fas fa-users-cog"></i> إدارة المستخدمين</h3>
+        <button class="btn-primary" onclick="showAddUserModal()">
+            <i class="fas fa-user-plus"></i> مستخدم جديد
+        </button>
+    </div>
+    
+    <!-- الإحصائيات -->
+    <div class="user-stats">
+        <div class="billing-stat-card">
+            <div class="deployment-stat-value" id="totalUsers">0</div>
+            <div>إجمالي المستخدمين</div>
+        </div>
+        <div class="billing-stat-card">
+            <div class="deployment-stat-value" id="activeUsers">0</div>
+            <div>نشط</div>
+        </div>
+        <div class="billing-stat-card">
+            <div class="deployment-stat-value" id="adminCount">0</div>
+            <div>أدمن</div>
+        </div>
+        <div class="billing-stat-card">
+            <div class="deployment-stat-value" id="devCount">0</div>
+            <div>مطورين</div>
+        </div>
+    </div>
+    
+    <!-- فلتر -->
+    <div class="filter-bar">
+        <select id="roleFilter" class="filter-input" onchange="filterUsers()">
+            <option value="all">جميع الأدوار</option>
+            <option value="super_admin">سوبر أدمن</option>
+            <option value="admin">أدمن</option>
+            <option value="developer">مطور</option>
+            <option value="designer">مصمم</option>
+            <option value="marketing">تسويق</option>
+            <option value="support">دعم</option>
+        </select>
+        <input type="text" id="searchInput" class="filter-input" placeholder="🔍 بحث..." onkeyup="filterUsers()">
+    </div>
+    
+    <div id="usersList"></div>
+</div>
+
+<script>
+    let users = [];
+    
+    const demoUsers = [
+        { id: '1', name: 'أحمد المدير', email: 'admin@vero.com', role: 'super_admin', status: 'active', lastLogin: '2024-12-25 10:30', avatar: 'أ' },
+        { id: '2', name: 'سارة المطور', email: 'sara@vero.com', role: 'developer', status: 'active', lastLogin: '2024-12-25 09:15', avatar: 'س' },
+        { id: '3', name: 'مصعب المصمم', email: 'mosab@vero.com', role: 'designer', status: 'active', lastLogin: '2024-12-24 14:20', avatar: 'م' },
+        { id: '4', name: 'نورة التسويق', email: 'noura@vero.com', role: 'marketing', status: 'active', lastLogin: '2024-12-23 11:00', avatar: 'ن' },
+        { id: '5', name: 'علي الدعم', email: 'ali@vero.com', role: 'support', status: 'suspended', lastLogin: '2024-12-20 08:45', avatar: 'ع' },
+        { id: '6', name: 'ليلى المبيعات', email: 'leila@vero.com', role: 'marketing', status: 'active', lastLogin: '2024-12-22 16:30', avatar: 'ل' },
+    ];
+    
+    function loadUsers() {
+        users = demoUsers;
+        updateStats();
+        renderUsers();
+    }
+    
+    function updateStats() {
+        const total = users.length;
+        const active = users.filter(u => u.status === 'active').length;
+        const admin = users.filter(u => u.role === 'super_admin' || u.role === 'admin').length;
+        const dev = users.filter(u => u.role === 'developer').length;
+        
+        document.getElementById('totalUsers').innerHTML = total;
+        document.getElementById('activeUsers').innerHTML = active;
+        document.getElementById('adminCount').innerHTML = admin;
+        document.getElementById('devCount').innerHTML = dev;
+    }
+    
+    function renderUsers() {
+        const roleFilter = document.getElementById('roleFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        let filtered = [...users];
+        if (roleFilter !== 'all') filtered = filtered.filter(u => u.role === roleFilter);
+        if (searchTerm) filtered = filtered.filter(u => u.name.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm));
+        
+        const container = document.getElementById('usersList');
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>لا توجد مستخدمين</h3><p>لم يتم العثور على مستخدمين</p></div>`;
+            return;
+        }
+        
+        container.innerHTML = filtered.map(u => `
+            <div class="user-card">
+                <div class="user-avatar-lg">${u.avatar}</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <strong style="font-size: 16px;">${u.name}</strong>
+                        <span class="role-badge role-${u.role}">${getRoleName(u.role)}</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--gray); margin-top: 4px;">${u.email}</div>
+                    <div style="font-size: 11px; color: var(--gold); margin-top: 4px;">آخر دخول: ${u.lastLogin}</div>
+                </div>
+                <div>
+                    <select class="role-select" onchange="changeRole('${u.id}', this.value)">
+                        <option value="developer" ${u.role === 'developer' ? 'selected' : ''}>💻 مطور</option>
+                        <option value="designer" ${u.role === 'designer' ? 'selected' : ''}>🎨 مصمم</option>
+                        <option value="marketing" ${u.role === 'marketing' ? 'selected' : ''}>📢 تسويق</option>
+                        <option value="support" ${u.role === 'support' ? 'selected' : ''}>🛡️ دعم</option>
+                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>📋 أدمن</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="status-toggle ${u.status === 'active' ? 'active' : ''}" onclick="toggleUserStatus('${u.id}')"></div>
+                </div>
+                <div>
+                    <button class="btn-icon" onclick="resetPassword('${u.id}')"><i class="fas fa-key"></i></button>
+                    <button class="btn-icon-danger" onclick="deleteUser('${u.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function getRoleName(role) {
+        const names = { super_admin: '👑 سوبر أدمن', admin: '📋 أدمن', developer: '💻 مطور', designer: '🎨 مصمم', marketing: '📢 تسويق', support: '🛡️ دعم' };
+        return names[role] || role;
+    }
+    
+    function filterUsers() {
+        renderUsers();
+    }
+    
+    function showAddUserModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</h3>
+                <div class="form-group">
+                    <label>الاسم</label>
+                    <input type="text" id="userName" placeholder="أحمد محمد">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="userEmail" placeholder="user@vero.com">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="userPassword" placeholder="********">
+                </div>
+                <div class="form-group">
+                    <label>الدور</label>
+                    <select id="userRole">
+                        <option value="developer">💻 مطور</option>
+                        <option value="designer">🎨 مصمم</option>
+                        <option value="marketing">📢 تسويق</option>
+                        <option value="support">🛡️ دعم</option>
+                        <option value="admin">📋 أدمن</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn-secondary" onclick="this.closest('.modal').remove()">إلغاء</button>
+                    <button class="btn-primary" onclick="addUser(this)">إضافة</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+    }
+    
+    function addUser(btn) {
+        const modal = btn.closest('.modal');
+        const name = modal.querySelector('#userName').value;
+        const email = modal.querySelector('#userEmail').value;
+        const password = modal.querySelector('#userPassword').value;
+        const role = modal.querySelector('#userRole').value;
+        
+        if (!name || !email || !password) {
+            alert('الرجاء إدخال جميع البيانات');
+            return;
+        }
+        
+        const newUser = {
+            id: Date.now(),
+            name, email, role,
+            status: 'active',
+            lastLogin: '-',
+            avatar: name[0]
+        };
+        
+        users.push(newUser);
+        updateStats();
+        renderUsers();
+        modal.remove();
+        showToast('✅ تم إضافة المستخدم');
+    }
+    
+    function changeRole(userId, newRole) {
+        const user = users.find(u => u.id == userId);
+        if (user) {
+            user.role = newRole;
+            renderUsers();
+            showToast(`✅ تم تغيير دور ${user.name}`);
+        }
+    }
+    
+    function toggleUserStatus(userId) {
+        const user = users.find(u => u.id == userId);
+        if (user) {
+            user.status = user.status === 'active' ? 'suspended' : 'active';
+            updateStats();
+            renderUsers();
+            showToast(`${user.status === 'active' ? '✅ تم تفعيل' : '⛔ تم إيقاف'} ${user.name}`);
+        }
+    }
+    
+    function resetPassword(userId) {
+        const user = users.find(u => u.id == userId);
+        if (user && confirm(`هل أنت متأكد من إعادة تعيين كلمة مرور ${user.name}؟`)) {
+            const newPassword = Math.random().toString(36).slice(-8);
+            showToast(`🔑 تم إعادة تعيين كلمة المرور لـ ${user.name}: ${newPassword}`);
+        }
+    }
+    
+    function deleteUser(userId) {
+        const user = users.find(u => u.id == userId);
+        if (user && confirm(`هل أنت متأكد من حذف ${user.name}؟`)) {
+            users = users.filter(u => u.id != userId);
+            updateStats();
+            renderUsers();
+            showToast(`🗑️ تم حذف ${user.name}`);
+        }
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    loadUsers();
+</script>
+</body>
+</html>
